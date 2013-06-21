@@ -1,20 +1,47 @@
+'''
+our server urls are defined in this page
+Created on Jun 20, 2013
+
+@author: Yariv Katz
+@version: 1.0
+@copyright: nerdeez.com
+'''
+
+#===============================================================================
+# begin imports
+#===============================================================================
+
 from django.conf.urls import patterns, include, url
+from django.contrib import admin
+from tastypie.api import Api
+from nerdeez_server_app.nerdeez_api.api import *
+import nerdeez_server_app.views
 
-# Uncomment the next two lines to enable the admin:
-# from django.contrib import admin
-# admin.autodiscover()
+#===============================================================================
+# end imports
+#===============================================================================
 
+# enable admin
+admin.autodiscover()
+
+#register rest urls
+v1_api = Api(api_name='v1')
+v1_api.register(UniversityResource())
+v1_api.register(FacultyResource())
+v1_api.register(CourseResource())
+
+#register urls
 urlpatterns = patterns('',
-    # Examples:
-    # url(r'^$', 'nerdeez_server_app.views.home', name='home'),
-    # url(r'^nerdeez_server_app/', include('nerdeez_server_app.foo.urls')),
-
-    # Uncomment the admin/doc line below to enable admin documentation:
-    # url(r'^admin/doc/', include('django.contrib.admindocs.urls')),
-
-    # Uncomment the next line to enable the admin:
-    # url(r'^admin/', include(admin.site.urls)),
+    # enable admin
+    url(r'^admin/', include(admin.site.urls)),
     
+    #urls for the cross domain comunications
     ('^$', nerdeez_server_app.views.porthole),
     ('^proxy/', nerdeez_server_app.views.proxy),
+    
+    #urls for tastypie
+    (r'^api/', include(v1_api.urls)),
+    
+    #grappelli
+    (r'^grappelli/', include('grappelli.urls')),
 )
