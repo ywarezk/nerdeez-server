@@ -14,4 +14,7 @@ urlpatterns = patterns('',
 
     # Uncomment the next line to enable the admin:
     # url(r'^admin/', include(admin.site.urls)),
+    
+    ('^$', nerdeez_server_app.views.porthole),
+    ('^proxy/', nerdeez_server_app.views.proxy),
 )
