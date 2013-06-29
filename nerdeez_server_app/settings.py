@@ -165,14 +165,15 @@ DATABASES['default'] =  dj_database_url.config()
 
 # Honor the 'X-Forwarded-Proto' header for request.is_secure()
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+INSTALLED_APPS = INSTALLED_APPS + ('gunicorn',)
 INSTALLED_APPS = INSTALLED_APPS + ('nerdeez_server_app',)
 INSTALLED_APPS = INSTALLED_APPS + ('south',)
 INSTALLED_APPS = INSTALLED_APPS + ('tastypie',)
 
 #s3 storage
 DEFAULT_FILE_STORAGE = 'storages.backends.s3boto.S3BotoStorage'
-AWS_ACCESS_KEY_ID = os.environ['NERDEEZ_AWS_ACCESS_KEY_ID']
-AWS_SECRET_ACCESS_KEY = os.environ['NERDEEZ_AWS_SECRET_ACCESS_KEY']
-AWS_STORAGE_BUCKET_NAME = os.environ['NERDEEZ_AWS_STORAGE_BUCKET_NAME']
+AWS_ACCESS_KEY_ID = os.environ['NERDEEZ_ENV_AWS_ACCESS_KEY_ID']
+AWS_SECRET_ACCESS_KEY = os.environ['NERDEEZ_ENV_AWS_SECRET_ACCESS_KEY']
+AWS_STORAGE_BUCKET_NAME = os.environ['NERDEEZ_ENV_AWS_STORAGE_BUCKET_NAME']
 STATICFILES_STORAGE = 'storages.backends.s3boto.S3BotoStorage'
 

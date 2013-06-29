@@ -44,8 +44,8 @@ class SchoolGroup(NerdeezModel):
     description = models.CharField(max_length=250, blank=True, null=False, default="")
     image = models.ImageField(upload_to='group_profile_image')
     
-    # make the groups searchable
     search_index = VectorField()
+    
     objects = SearchManager(
         fields = ('title', 'description'),
         auto_update_search_field = True
@@ -75,25 +75,24 @@ class Faculty(SchoolGroup):
     '''
     the faculty table
     '''
-    university = models.ForeignKey('University', related_name = "university", null = False, blank = False)
+    university = models.ForeignKey('University', related_name = "university", null = True, blank = True)
     
-    # search faculty by university as well
     objects = SearchManager(
         fields = ('title', 'description', 'university.title', 'university.description'),
         auto_update_search_field = True
     )
-
+    
 class Course(SchoolGroup):
     '''
     the courses table
     '''
-    faculty = models.ForeignKey('Faculty', related_name='faculty', null=False, blank=False)
+    faculty = models.ForeignKey('Faculty', related_name='faculty', null=True, blank=True)
     
-    # search faculty by university as well
     objects = SearchManager(
-        fields = ('title', 'description', 'faculty.title', 'faculty.description', 'faculty.university.title', 'faculty.university.description'),
+        fields = ('title', 'description', 'faculty.university.title', 'faculty.university.description', 'faculty.title', 'faculty.description'),
         auto_update_search_field = True
     )
+    
 
 #===============================================================================
 # end tables - models
