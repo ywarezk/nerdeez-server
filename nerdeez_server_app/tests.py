@@ -31,7 +31,7 @@ class ApiTest(ResourceTestCase):
         '''
         run a search query in the school group
         1 - make sure search query technion in uni yields one result
-        2 - make sure search query technion in faculty yields one result
+        2 - make sure search query technion in faculty yields 2 result
         3 - make sure search query technion in course yields 2 result
         '''
         
@@ -39,7 +39,7 @@ class ApiTest(ResourceTestCase):
         self.assertEqual(self.deserialize(resp)['meta']['total_count'], 1)
         
         resp = self.api_client.get('/api/v1/faculty/', format='json', data={'search': 'technion'})
-        self.assertEqual(self.deserialize(resp)['meta']['total_count'], 1)
+        self.assertEqual(self.deserialize(resp)['meta']['total_count'], 2)
         
         resp = self.api_client.get('/api/v1/course/', format='json', data={'search': 'technion'})
         self.assertEqual(self.deserialize(resp)['meta']['total_count'], 2)
