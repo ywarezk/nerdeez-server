@@ -6,7 +6,6 @@ boto==2.9.6
 distribute==0.6.31
 dj-database-url==0.2.1
 django-grappelli==2.4.5
-django-haystack==2.0.0
 django-storages==1.1.8
 django-tastypie==0.9.15
 gunicorn==0.17.4
