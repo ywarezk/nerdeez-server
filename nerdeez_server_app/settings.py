@@ -166,8 +166,8 @@ DATABASES['default'] =  dj_database_url.config()
 # Honor the 'X-Forwarded-Proto' header for request.is_secure()
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 INSTALLED_APPS = INSTALLED_APPS + ('gunicorn',)
-INSTALLED_APPS = INSTALLED_APPS + ('nerdeez_server_app',)
 INSTALLED_APPS = INSTALLED_APPS + ('south',)
+INSTALLED_APPS = INSTALLED_APPS + ('nerdeez_server_app',)
 INSTALLED_APPS = INSTALLED_APPS + ('tastypie',)
 
 #s3 storage
