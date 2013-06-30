@@ -13,8 +13,6 @@ Created on June 21, 2013
 
 from django.db import models
 import datetime
-from djorm_pgfulltext.models import SearchManager
-from djorm_pgfulltext.fields import VectorField
 
 #===============================================================================
 # end imports
@@ -42,14 +40,7 @@ class SchoolGroup(NerdeezModel):
     # table columns
     title = models.CharField(max_length=250, blank=False, null=False)
     description = models.CharField(max_length=250, blank=True, null=False, default="")
-    image = models.ImageField(upload_to='group_profile_image')
-    
-    search_index = VectorField()
-    
-    objects = SearchManager(
-        fields = ('title', 'description'),
-        auto_update_search_field = True
-    )
+    image = models.ImageField(upload_to='group_profile_image', default=None, null=True, blank=True)
     
     class Meta:
         abstract = True
@@ -77,21 +68,12 @@ class Faculty(SchoolGroup):
     '''
     university = models.ForeignKey('University', related_name = "university", null = True, blank = True)
     
-    objects = SearchManager(
-        fields = ('title', 'description', 'university.title', 'university.description'),
-        auto_update_search_field = True
-    )
     
 class Course(SchoolGroup):
     '''
     the courses table
     '''
     faculty = models.ForeignKey('Faculty', related_name='faculty', null=True, blank=True)
-    
-    objects = SearchManager(
-        fields = ('title', 'description', 'faculty.university.title', 'faculty.university.description', 'faculty.title', 'faculty.description'),
-        auto_update_search_field = True
-    )
     
 
 #===============================================================================

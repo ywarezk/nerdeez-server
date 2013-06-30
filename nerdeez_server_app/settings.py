@@ -169,6 +169,7 @@ INSTALLED_APPS = INSTALLED_APPS + ('gunicorn',)
 INSTALLED_APPS = INSTALLED_APPS + ('nerdeez_server_app',)
 INSTALLED_APPS = INSTALLED_APPS + ('south',)
 INSTALLED_APPS = INSTALLED_APPS + ('tastypie',)
+INSTALLED_APPS = INSTALLED_APPS + ('haystack',)
 
 #s3 storage
 DEFAULT_FILE_STORAGE = 'storages.backends.s3boto.S3BotoStorage'
@@ -177,3 +178,10 @@ AWS_SECRET_ACCESS_KEY = os.environ['NERDEEZ_ENV_AWS_SECRET_ACCESS_KEY']
 AWS_STORAGE_BUCKET_NAME = os.environ['NERDEEZ_ENV_AWS_STORAGE_BUCKET_NAME']
 STATICFILES_STORAGE = 'storages.backends.s3boto.S3BotoStorage'
 
+#for searching with xapian
+HAYSTACK_CONNECTIONS = {
+    'default': {
+        'ENGINE': 'xapian_backend.XapianEngine',
+        'PATH': os.path.join(os.path.dirname(__file__), 'xapian_index'),
+    },
+}

@@ -44,4 +44,10 @@ urlpatterns = patterns('',
     
     #grappelli
     (r'^grappelli/', include('grappelli.urls')),
+    
+    #test
+    (r'^test/', nerdeez_server_app.views.test_djorm),
+    
+    #haystack
+    (r'^search/', include('haystack.urls')),
 )
