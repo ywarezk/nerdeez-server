@@ -13,6 +13,7 @@ Created on June 21, 2013
 
 from django.db import models
 import datetime
+from django.db.models import Q
 
 #===============================================================================
 # end imports
@@ -47,6 +48,16 @@ class SchoolGroup(NerdeezModel):
         
     def __unicode__(self):
         return self.title
+    
+    @classmethod
+    def search(cls, query):
+        '''
+        used for searching using contains
+        @param query: string of the query to search
+        @return: {QuerySet} all the objects matching the search
+        '''
+        
+        return cls.objects.filter(Q(title__icontains=query) | Q(description__icontains=query)).order_by('title')
         
 #===============================================================================
 # end models abstract classes
@@ -61,6 +72,7 @@ class University(SchoolGroup):
     the university table
     '''
     pass
+    
 
 class Faculty(SchoolGroup):
     '''
@@ -68,12 +80,38 @@ class Faculty(SchoolGroup):
     '''
     university = models.ForeignKey('University', related_name = "university", null = True, blank = True)
     
+    @classmethod
+    def search(cls, query):
+        '''
+        @see: SchoolGroup.search
+        '''
+        
+        return cls.objects.filter(
+                                   Q(title__icontains=query) | 
+                                   Q(description__icontains=query) |
+                                   Q(university__title__icontains=query) |
+                                   Q(university__description__icontains=query)).order_by('title')
+    
     
 class Course(SchoolGroup):
     '''
     the courses table
     '''
     faculty = models.ForeignKey('Faculty', related_name='faculty', null=True, blank=True)
+    
+    @classmethod
+    def search(cls, query):
+        '''
+        @see: SchoolGroup.search
+        '''
+        
+        return cls.objects.filter(
+                                   Q(title__icontains=query) | 
+                                   Q(description__icontains=query) |
+                                   Q(faculty__title__icontains=query) |
+                                   Q(faculty__description__icontains=query) |
+                                   Q(faculty__university__title__icontains=query) |
+                                   Q(faculty__university__description__icontains=query)).order_by('title')
     
 
 #===============================================================================

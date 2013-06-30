@@ -55,8 +55,8 @@ class SchoolGroupResource(NerdeezResource):
         object_list = super(SchoolGroupResource, self).get_object_list(request)
         ids = []
         if request.GET.get('search') != None:
-            search_object_list = SchoolGroup.objects.search(request.GET.get('search'))
-            [ids.append(obj.user.id) for obj in search_object_list]
+            search_object_list = self.Meta.object_class.search(request.GET.get('search'))
+            [ids.append(obj.id) for obj in search_object_list]
         if len(ids) > 0:
             object_list = object_list.filter(id__in=ids)
         return object_list

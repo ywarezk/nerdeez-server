@@ -1,6 +1,0 @@
-{{object.title}}
-{{object.description}}
-{{object.faculty.university.title}}
-{{object.faculty.university.description}}
-{{object.faculty.title}}
-{{object.faculty.description}}

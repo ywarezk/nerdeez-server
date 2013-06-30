@@ -1,0 +1,72 @@
+[
+{
+    "pk": 7, 
+    "model": "nerdeez_server_app.university", 
+    "fields": {
+        "description": "Israel's Institute of Technology", 
+        "title": "Technion", 
+        "modified_data": "2013-06-29T11:24:55.664Z", 
+        "image": "", 
+        "creation_date": "2013-06-29T11:23:56Z"
+    }
+},
+{
+    "pk": 8, 
+    "model": "nerdeez_server_app.university", 
+    "fields": {
+        "description": "Israel Tel Aviv University", 
+        "title": "Tel Aviv University", 
+        "modified_data": "2013-06-30T08:27:08.009Z", 
+        "image": "", 
+        "creation_date": "2013-06-30T08:26:14Z"
+    }
+},
+{
+    "pk": 1, 
+    "model": "nerdeez_server_app.faculty", 
+    "fields": {
+        "description": "Technion's Computer Science faculty", 
+        "title": "Computer Science", 
+        "university": 7, 
+        "creation_date": "2013-06-29T11:25:21Z", 
+        "image": "", 
+        "modified_data": "2013-06-29T11:26:17.610Z"
+    }
+},
+{
+    "pk": 2, 
+    "model": "nerdeez_server_app.faculty", 
+    "fields": {
+        "description": "Computer Science faculty in technion's university", 
+        "title": "Technion - Computer Science", 
+        "university": 7, 
+        "creation_date": "2013-06-30T08:28:10Z", 
+        "image": "", 
+        "modified_data": "2013-06-30T08:29:39.430Z"
+    }
+},
+{
+    "pk": 1, 
+    "model": "nerdeez_server_app.course", 
+    "fields": {
+        "description": "Numerical Analysis 1", 
+        "title": "234107", 
+        "image": "", 
+        "creation_date": "2013-06-30T08:30:47Z", 
+        "faculty": 2, 
+        "modified_data": "2013-06-30T08:32:00.015Z"
+    }
+},
+{
+    "pk": 2, 
+    "model": "nerdeez_server_app.course", 
+    "fields": {
+        "description": "Combinatorics for Computer Science", 
+        "title": "234141", 
+        "image": "", 
+        "creation_date": "2013-06-30T08:32:39Z", 
+        "faculty": 2, 
+        "modified_data": "2013-06-30T08:33:43.254Z"
+    }
+}
+]

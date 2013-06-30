@@ -1,4 +1,0 @@
-{{object.title}}
-{{object.description}}
-{{object.university.title}}
-{{object.university.description}}
