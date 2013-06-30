@@ -52,13 +52,14 @@ class SchoolGroupResource(NerdeezResource):
         '''
         search group logic
         '''
-        object_list = super(SchoolGroupResource, self).get_object_list(request)
         ids = []
         if request.GET.get('search') != None:
             search_object_list = self.Meta.object_class.search(request.GET.get('search'))
             [ids.append(obj.id) for obj in search_object_list]
-        if len(ids) > 0:
+            object_list = super(SchoolGroupResource, self).get_object_list(request)
             object_list = object_list.filter(id__in=ids)
+        else:
+            object_list = super(SchoolGroupResource, self).get_object_list(request)
         return object_list
 
 #===============================================================================
