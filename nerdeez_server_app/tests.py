@@ -42,9 +42,6 @@ class ApiTest(ResourceTestCase):
         resp = self.api_client.get('/api/v1/university/', format='json', data={'search': 'sdghskod'})
         self.assertEqual(self.deserialize(resp)['meta']['total_count'], 0)
         
-        resp = self.api_client.get('/api/v1/faculty/', format='json', data={'search': 'technion'})
-        self.assertEqual(self.deserialize(resp)['meta']['total_count'], 2)
-        
         resp = self.api_client.get('/api/v1/course/', format='json', data={'search': 'technion'})
         self.assertEqual(self.deserialize(resp)['meta']['total_count'], 2)
         

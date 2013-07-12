@@ -74,11 +74,13 @@ class University(SchoolGroup):
     pass
     
 
-class Faculty(SchoolGroup):
+    
+    
+class Course(SchoolGroup):
     '''
-    the faculty table
+    the courses table
     '''
-    university = models.ForeignKey('University', related_name = "university", null = True, blank = True)
+    university = models.ForeignKey('University', related_name='university', null=True, blank=True)
     
     @classmethod
     def search(cls, query):
@@ -91,27 +93,6 @@ class Faculty(SchoolGroup):
                                    Q(description__icontains=query) |
                                    Q(university__title__icontains=query) |
                                    Q(university__description__icontains=query)).order_by('title')
-    
-    
-class Course(SchoolGroup):
-    '''
-    the courses table
-    '''
-    faculty = models.ForeignKey('Faculty', related_name='faculty', null=True, blank=True)
-    
-    @classmethod
-    def search(cls, query):
-        '''
-        @see: SchoolGroup.search
-        '''
-        
-        return cls.objects.filter(
-                                   Q(title__icontains=query) | 
-                                   Q(description__icontains=query) |
-                                   Q(faculty__title__icontains=query) |
-                                   Q(faculty__description__icontains=query) |
-                                   Q(faculty__university__title__icontains=query) |
-                                   Q(faculty__university__description__icontains=query)).order_by('title')
     
 
 #===============================================================================

@@ -78,20 +78,12 @@ class UniversityResource(SchoolGroupResource):
     class Meta:
         queryset = University.objects.all()
         
-class FacultyResource(SchoolGroupResource):
-    '''
-    the rest api for the university
-    '''
-    university =  fields.ToOneField(UniversityResource, 'university')
-    
-    class Meta:
-        queryset = Faculty.objects.all()
         
 class CourseResource(SchoolGroupResource):
     '''
     the rest api for the university
     '''
-    faculty =  fields.ToOneField(FacultyResource, 'faculty')
+    faculty =  fields.ToOneField(UniversityResource, 'university')
     
     class Meta:
         queryset = Course.objects.all()

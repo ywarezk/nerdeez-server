@@ -40,7 +40,6 @@ class CourseAdmin(admin.ModelAdmin):
 #===============================================================================
 
 admin.site.register(University, UniversityAdmin)
-admin.site.register(Faculty, FacultyAdmin)
 admin.site.register(Course, CourseAdmin)
 
 
