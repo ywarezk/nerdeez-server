@@ -45,7 +45,7 @@ class SchoolGroupResource(NerdeezResource):
     abstract class for common rest stuff for a school group: university, faculty, model
     '''
     
-    class Meta:
+    class Meta(NerdeezResource.Meta):
         allowed_methods = ['get', 'post']
         
     def get_object_list(self, request):
