@@ -83,7 +83,7 @@ class CourseResource(SchoolGroupResource):
     '''
     the rest api for the university
     '''
-    faculty =  fields.ToOneField(UniversityResource, 'university')
+    university =  fields.ToOneField(UniversityResource, 'university', full=True, null=True)
     
     class Meta(SchoolGroupResource.Meta):
         queryset = Course.objects.all()
