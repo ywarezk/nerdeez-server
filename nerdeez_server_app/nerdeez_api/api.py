@@ -11,7 +11,7 @@ Created on Jun 20, 2013
 # begin imports
 #===============================================================================
 
-from tastypie.resources import ModelResource
+from tastypie.resources import ModelResource, ALL
 from tastypie import fields
 from tastypie.authorization import Authorization
 from tastypie.authentication import Authentication
@@ -94,6 +94,9 @@ class FlatpageResource(NerdeezResource):
     '''
     class Meta(NerdeezResource.Meta):
         queryset = Flatpage.objects.all()
+        filtering = {
+                     'title': ALL,
+                     }
 
 #===============================================================================
 # end teh actual rest api
