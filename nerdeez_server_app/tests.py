@@ -45,6 +45,13 @@ class ApiTest(ResourceTestCase):
         resp = self.api_client.get('/api/v1/course/', format='json', data={'search': 'technion'})
         self.assertEqual(self.deserialize(resp)['meta']['total_count'], 2)
         
+    def test_flatpage(self):
+        '''
+        make sure get command works on flatpage url
+        '''
+        resp = self.api_client.get('/api/v1/flatpage/', format='json', data={})
+        self.assertHttpOK(resp)
+        
         
         
         

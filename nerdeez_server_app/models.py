@@ -94,7 +94,15 @@ class Course(SchoolGroup):
                                    Q(university__title__icontains=query) |
                                    Q(university__description__icontains=query)).order_by('title')
     
+class Flatpage(NerdeezModel):
+    '''
+    the flatpage table
+    '''
+    title = models.CharField(max_length=250, blank=True, null=True, unique=True)
+    html = models.TextField(blank=False, null=False)
 
+    def __unicode__(self):
+        return self.title
 #===============================================================================
 # end tables - models
 #===============================================================================

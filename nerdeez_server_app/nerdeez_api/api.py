@@ -87,6 +87,13 @@ class CourseResource(SchoolGroupResource):
     
     class Meta(SchoolGroupResource.Meta):
         queryset = Course.objects.all()
+        
+class FlatpageResource(NerdeezResource):
+    '''
+    the rest api for the flatpage
+    '''
+    class Meta(NerdeezResource.Meta):
+        queryset = Flatpage.objects.all()
 
 #===============================================================================
 # end teh actual rest api

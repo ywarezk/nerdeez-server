@@ -24,12 +24,11 @@ from nerdeez_server_app.models import *
 class UniversityAdmin(admin.ModelAdmin):
     pass
 
-class FacultyAdmin(admin.ModelAdmin):
-    pass
-
 class CourseAdmin(admin.ModelAdmin):
     pass
 
+class FlatpageAdmin(admin.ModelAdmin):
+    pass
 
 #===============================================================================
 # end admin models
@@ -41,6 +40,7 @@ class CourseAdmin(admin.ModelAdmin):
 
 admin.site.register(University, UniversityAdmin)
 admin.site.register(Course, CourseAdmin)
+admin.site.register(Flatpage, FlatpageAdmin)
 
 
 #===============================================================================
