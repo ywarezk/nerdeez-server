@@ -98,8 +98,8 @@ class Flatpage(NerdeezModel):
     '''
     the flatpage table
     '''
-    title = models.CharField(max_length=250, blank=True, null=True, unique=True)
-    html = models.TextField(blank=False, null=False)
+    title = models.CharField(max_length=250, blank=False, null=False, unique=True)
+    html = models.TextField(blank=True, null=True)
 
     def __unicode__(self):
         return self.title
