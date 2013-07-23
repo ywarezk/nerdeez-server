@@ -16,6 +16,16 @@ from tastypie import fields
 from tastypie.authorization import Authorization
 from tastypie.authentication import Authentication
 from nerdeez_server_app.models import *
+from django.contrib.auth.models import User
+import os
+from django.template.loader import get_template
+from django.template import Context
+from django.utils.html import strip_tags
+from django.core.mail import EmailMultiAlternatives
+from nerdeez_server_app import settings
+from smtplib import SMTPSenderRefused
+from tastypie import http
+from tastypie.exceptions import ImmediateHttpResponse
 
 #===============================================================================
 # end imports
@@ -98,6 +108,44 @@ class FlatpageResource(NerdeezResource):
                      'title': ALL,
                      }
 
+class ContactusResource(NerdeezResource):
+    '''
+    when the user fills the contact us form
+    '''
+    class Meta(NerdeezResource.Meta):
+        allowed_methods = ['post']
+        object_class = object
+        include_resource_uri = False
+        
+    def obj_create(self, bundle, request=None, **kwargs):
+        '''
+        will send the message to our mail
+        '''
+        #get params
+        message = bundle.data['message']
+        mail = bundle.data['mail']
+        admin_mail = os.environ['ADMIN_MAIL']
+        bundle.obj = object
+        
+        t = get_template('contact_us_email.html')
+        html = t.render(Context({'mail': mail, 'message': message}))
+        text_content = strip_tags(html)
+        msg = EmailMultiAlternatives(u'Nerdeez contact us', text_content, settings.FROM_EMAIL_ADDRESS, [admin_mail])
+        msg.attach_alternative(html, "text/html")
+        try:
+            msg.send()
+        except SMTPSenderRefused, e:
+            raise ImmediateHttpResponse(response=http.HttpApplicationError({'status' : "error", 'message' : "failed to send mail"}))
+        return bundle
+    
+    def dehydrate(self, bundle):
+        '''
+        will return the appropriate response
+        '''
+        bundle.data = {'status': "success", 'message': ""}
+            
+        return bundle
+    
 #===============================================================================
 # end teh actual rest api
 #===============================================================================

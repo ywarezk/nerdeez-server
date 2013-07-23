@@ -52,7 +52,12 @@ class ApiTest(ResourceTestCase):
         resp = self.api_client.get('/api/v1/flatpage/', format='json', data={})
         self.assertHttpOK(resp)
         
-        
+    def test_contactus(self):
+        '''
+        test send mail
+        '''
+        resp = self.api_client.post('/api/v1/contactus/', format='json', data={'mail': 'mail', 'message': 'testmessage'})
+        self.assertHttpApplicationError(resp)
         
         
 

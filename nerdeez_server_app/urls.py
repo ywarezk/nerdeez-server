@@ -29,6 +29,7 @@ v1_api = Api(api_name='v1')
 v1_api.register(UniversityResource())
 v1_api.register(CourseResource())
 v1_api.register(FlatpageResource())
+v1_api.register(ContactusResource())
 
 #register urls
 urlpatterns = patterns('',

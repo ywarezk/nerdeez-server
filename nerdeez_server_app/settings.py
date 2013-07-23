@@ -76,6 +76,19 @@ STATICFILES_DIRS = (
     # Don't forget to use absolute paths, not relative paths.
 )
 
+#for send grid
+try:
+    EMAIL_HOST_USER = os.environ['SENDGRID_USERNAME']
+    EMAIL_HOST= 'smtp.sendgrid.net'
+    EMAIL_PORT = 587
+    EMAIL_USE_TLS = True
+    EMAIL_HOST_PASSWORD = os.environ['SENDGRID_PASSWORD']
+except:
+    pass
+
+#when sending mail the user will see this address
+FROM_EMAIL_ADDRESS = 'noreply@nerdeez.com'
+
 # List of finder classes that know how to find static files in
 # various locations.
 STATICFILES_FINDERS = (
