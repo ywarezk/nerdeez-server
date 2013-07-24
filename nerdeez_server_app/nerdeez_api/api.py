@@ -28,6 +28,14 @@ from tastypie import http
 from tastypie.exceptions import ImmediateHttpResponse
 from django.db import models
 
+from django.contrib.auth.models import User
+from django.contrib.auth import authenticate, login, logout
+from tastypie.http import HttpUnauthorized, HttpForbidden, HttpAccepted,\
+    HttpCreated, HttpApplicationError
+from django.conf.urls import url
+from tastypie.utils import trailing_slash
+
+
 #===============================================================================
 # end imports
 #===============================================================================
@@ -111,21 +119,29 @@ class FlatpageResource(NerdeezResource):
                      'title': ALL,
                      }
 
-class ContactusResource(NerdeezResource):
+class UtilitiesResource(NerdeezResource):
     '''
-    when the user fills the contact us form
+    the api for things that are not attached to models: 
+    - contact us: url: /api/v1/utilities/contact/
     '''
+    
     class Meta(NerdeezResource.Meta):
         allowed_methods = ['post']
-        queryset = Contactus.objects.all()
+      
+    def override_urls(self):
+        return [
+            url(r"^(?P<resource_name>%s)/contact%s$" %
+                (self._meta.resource_name, trailing_slash()),
+                self.wrap_view('contact'), name="api_contact"),
+        ]
         
-    def obj_create(self, bundle, request=None, **kwargs):
+    def contact(self, request=None, **kwargs):
         '''
         will send the message to our mail
         '''
         #get params
-        message = bundle.data['message']
-        mail = bundle.data['mail']
+        message = request.POST.get('message')
+        mail = request.POST.get('mail')
         admin_mail = os.environ['ADMIN_MAIL']
         
         t = get_template('contact_us_email.html')
@@ -136,16 +152,15 @@ class ContactusResource(NerdeezResource):
         try:
             msg.send()
         except SMTPSenderRefused, e:
-            raise ImmediateHttpResponse(response=http.HttpApplicationError({'status' : "error", 'message' : "failed to send mail"}))
-        return super(ContactusResource, self).obj_create(bundle, request, **kwargs)
-    
-    def dehydrate(self, bundle):
-        '''
-        will return the appropriate response
-        '''
-        bundle.data = {'status': "success", 'message': ""}
-            
-        return bundle
+            return self.create_response(request, {
+                    'success': False,
+                    'message': 'Failed to send the email',
+                    }, HttpApplicationError )
+        
+        return self.create_response(request, {
+                    'success': True,
+                    'message': None,
+                    }, HttpAccepted )
     
 #===============================================================================
 # end teh actual rest api

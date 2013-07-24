@@ -44,7 +44,6 @@ class ContactusAdmin(admin.ModelAdmin):
 admin.site.register(University, UniversityAdmin)
 admin.site.register(Course, CourseAdmin)
 admin.site.register(Flatpage, FlatpageAdmin)
-admin.site.register(Contactus, ContactusAdmin)
 
 
 #===============================================================================

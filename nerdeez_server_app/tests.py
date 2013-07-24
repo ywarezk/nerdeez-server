@@ -56,8 +56,8 @@ class ApiTest(ResourceTestCase):
         '''
         test send mail
         '''
-        resp = self.api_client.post('/api/v1/contactus/', format='json', data={'mail': 'mail', 'message': 'testmessage'})
-        self.assertHttpApplicationError(resp)
+        resp = self.api_client.post('/api/v1/utilities/contact/', format='json', data={'mail': 'mail', 'message': 'testmessage'})
+        self.assertHttpAccepted(resp)
         
         
 
