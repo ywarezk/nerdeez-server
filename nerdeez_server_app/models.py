@@ -103,6 +103,18 @@ class Flatpage(NerdeezModel):
 
     def __unicode__(self):
         return self.title
+        
+class Contactus(NerdeezModel):
+    '''
+    user created a contact us message
+    '''
+    
+    mail = models.EmailField(default=None, blank=True, null=True)
+    message = models.TextField(blank=False, null=False)
+    
+    def __unicode__(self):
+        return "%s - %s" % (self.mail, self.message)
+
 #===============================================================================
 # end tables - models
 #===============================================================================

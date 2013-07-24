@@ -30,6 +30,9 @@ class CourseAdmin(admin.ModelAdmin):
 class FlatpageAdmin(admin.ModelAdmin):
     pass
 
+class ContactusAdmin(admin.ModelAdmin):
+    pass
+
 #===============================================================================
 # end admin models
 #===============================================================================
@@ -41,6 +44,7 @@ class FlatpageAdmin(admin.ModelAdmin):
 admin.site.register(University, UniversityAdmin)
 admin.site.register(Course, CourseAdmin)
 admin.site.register(Flatpage, FlatpageAdmin)
+admin.site.register(Contactus, ContactusAdmin)
 
 
 #===============================================================================

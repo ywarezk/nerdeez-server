@@ -26,6 +26,7 @@ from nerdeez_server_app import settings
 from smtplib import SMTPSenderRefused
 from tastypie import http
 from tastypie.exceptions import ImmediateHttpResponse
+from django.db import models
 
 #===============================================================================
 # end imports
@@ -71,6 +72,8 @@ class SchoolGroupResource(NerdeezResource):
         else:
             object_list = super(SchoolGroupResource, self).get_object_list(request)
         return object_list
+        
+
 
 #===============================================================================
 # end abstract resources
@@ -114,8 +117,7 @@ class ContactusResource(NerdeezResource):
     '''
     class Meta(NerdeezResource.Meta):
         allowed_methods = ['post']
-        object_class = object
-        include_resource_uri = False
+        queryset = Contactus.objects.all()
         
     def obj_create(self, bundle, request=None, **kwargs):
         '''
@@ -125,7 +127,6 @@ class ContactusResource(NerdeezResource):
         message = bundle.data['message']
         mail = bundle.data['mail']
         admin_mail = os.environ['ADMIN_MAIL']
-        bundle.obj = object
         
         t = get_template('contact_us_email.html')
         html = t.render(Context({'mail': mail, 'message': message}))
@@ -136,7 +137,7 @@ class ContactusResource(NerdeezResource):
             msg.send()
         except SMTPSenderRefused, e:
             raise ImmediateHttpResponse(response=http.HttpApplicationError({'status' : "error", 'message' : "failed to send mail"}))
-        return bundle
+        return super(ContactusResource, self).obj_create(bundle, request, **kwargs)
     
     def dehydrate(self, bundle):
         '''
