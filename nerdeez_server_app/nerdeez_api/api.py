@@ -34,6 +34,7 @@ from tastypie.http import HttpUnauthorized, HttpForbidden, HttpAccepted,\
     HttpCreated, HttpApplicationError
 from django.conf.urls import url
 from tastypie.utils import trailing_slash
+from django.utils import simplejson
 
 
 #===============================================================================
@@ -140,8 +141,9 @@ class UtilitiesResource(NerdeezResource):
         will send the message to our mail
         '''
         #get params
-        message = request.POST.get('message')
-        mail = request.POST.get('mail')
+        post = simplejson.loads(request.body)
+        message = post.get('message')
+        mail = post.get('mail')
         admin_mail = os.environ['ADMIN_MAIL']
         
         t = get_template('contact_us_email.html')
