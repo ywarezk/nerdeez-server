@@ -21,10 +21,8 @@ from nerdeez_server_app.models import *
 # begin admin models
 #===============================================================================
 
-class UniversityAdmin(admin.ModelAdmin):
-    pass
 
-class CourseAdmin(admin.ModelAdmin):
+class SchoolGroupAdmin(admin.ModelAdmin):
     pass
 
 class FlatpageAdmin(admin.ModelAdmin):
@@ -39,8 +37,7 @@ class FlatpageAdmin(admin.ModelAdmin):
 # begin admin site regitration
 #===============================================================================
 
-admin.site.register(University, UniversityAdmin)
-admin.site.register(Course, CourseAdmin)
+admin.site.register(SchoolGroup, SchoolGroupAdmin)
 admin.site.register(Flatpage, FlatpageAdmin)
 
 

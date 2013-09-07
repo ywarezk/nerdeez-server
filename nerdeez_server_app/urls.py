@@ -26,8 +26,7 @@ admin.autodiscover()
 
 #register rest urls
 v1_api = Api(api_name='v1')
-v1_api.register(UniversityResource())
-v1_api.register(CourseResource())
+v1_api.register(SchoolGroupResource())
 v1_api.register(FlatpageResource())
 v1_api.register(UtilitiesResource())
 

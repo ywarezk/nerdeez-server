@@ -64,9 +64,10 @@ class SchoolGroupResource(NerdeezResource):
     '''
     abstract class for common rest stuff for a school group: university, faculty, model
     '''
-    
+    parent =  fields.ToOneField('self', 'parent', full=True, null=True)
     class Meta(NerdeezResource.Meta):
-        allowed_methods = ['get', 'post']
+        allowed_methods = ['get', 'post', 'put']
+        queryset = SchoolGroup.objects.all()
         
     def get_object_list(self, request):
         '''
@@ -74,13 +75,9 @@ class SchoolGroupResource(NerdeezResource):
         '''
         ids = []
         if request.GET.get('search') != None:
-            search_object_list = self.Meta.object_class.search(request.GET.get('search'))
-            [ids.append(obj.id) for obj in search_object_list]
-            object_list = super(SchoolGroupResource, self).get_object_list(request)
-            object_list = object_list.filter(id__in=ids)
+            return self.Meta.object_class.search(request.GET.get('search'))
         else:
-            object_list = super(SchoolGroupResource, self).get_object_list(request)
-        return object_list
+            return super(SchoolGroupResource, self).get_object_list(request)
         
 
 
@@ -92,23 +89,8 @@ class SchoolGroupResource(NerdeezResource):
 # begin the actual rest api
 #===============================================================================
 
-class UniversityResource(SchoolGroupResource):
-    '''
-    the rest api for the university
-    '''
-    
-    class Meta(SchoolGroupResource.Meta):
-        queryset = University.objects.all()
         
         
-class CourseResource(SchoolGroupResource):
-    '''
-    the rest api for the university
-    '''
-    university =  fields.ToOneField(UniversityResource, 'university', full=True, null=True)
-    
-    class Meta(SchoolGroupResource.Meta):
-        queryset = Course.objects.all()
         
 class FlatpageResource(NerdeezResource):
     '''

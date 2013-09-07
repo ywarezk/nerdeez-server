@@ -20,8 +20,26 @@ from django.db.models import Q
 #===============================================================================
 
 #===============================================================================
+# begin constants
+#===============================================================================
+
+SCHOOL_TYPES = (
+    (1, "Course"),
+    (2, "Faculty"),
+    (3, "University"),
+)
+
+DEFAULT_SCHOOL_TYPE = 1
+
+#===============================================================================
+# end constants
+#===============================================================================
+
+#===============================================================================
 # begin models abstract classes
 #===============================================================================
+
+
 
 class NerdeezModel(models.Model):
     '''
@@ -34,6 +52,14 @@ class NerdeezModel(models.Model):
     class Meta:
         abstract = True
         
+#===============================================================================
+# end models abstract classes
+#===============================================================================
+
+#===============================================================================
+# begin tables - models
+#===============================================================================
+        
 class SchoolGroup(NerdeezModel):
     '''
     an abstract class for groups of students like university, faculty, course
@@ -42,10 +68,9 @@ class SchoolGroup(NerdeezModel):
     title = models.CharField(max_length=250, blank=False, null=False)
     description = models.CharField(max_length=250, blank=True, null=False, default="")
     image = models.ImageField(upload_to='group_profile_image', default=None, null=True, blank=True)
+    parent = models.ForeignKey('self', blank=True, null=True, default=None, related_name='university')
+    school_type = models.IntegerField(choices = SCHOOL_TYPES, default = DEFAULT_SCHOOL_TYPE, blank=False, null=False)
     
-    class Meta:
-        abstract = True
-        
     def __unicode__(self):
         return self.title
     
@@ -57,42 +82,12 @@ class SchoolGroup(NerdeezModel):
         @return: {QuerySet} all the objects matching the search
         '''
         
-        return cls.objects.filter(Q(title__icontains=query) | Q(description__icontains=query)).order_by('title')
-        
-#===============================================================================
-# end models abstract classes
-#===============================================================================
-
-#===============================================================================
-# begin tables - models
-#===============================================================================
-
-class University(SchoolGroup):
-    '''
-    the university table
-    '''
-    pass
-    
-
-    
-    
-class Course(SchoolGroup):
-    '''
-    the courses table
-    '''
-    university = models.ForeignKey('University', related_name='university', null=True, blank=True)
-    
-    @classmethod
-    def search(cls, query):
-        '''
-        @see: SchoolGroup.search
-        '''
-        
         return cls.objects.filter(
-                                   Q(title__icontains=query) | 
-                                   Q(description__icontains=query) |
-                                   Q(university__title__icontains=query) |
-                                   Q(university__description__icontains=query)).order_by('title')
+            Q(title__icontains=query) | 
+            Q(description__icontains=query) | 
+            Q(parent__title__icontains=query) | 
+            Q(parent__description__icontains=query)).order_by('title').distinct()
+        
     
 class Flatpage(NerdeezModel):
     '''
