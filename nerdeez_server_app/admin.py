@@ -30,8 +30,6 @@ class CourseAdmin(admin.ModelAdmin):
 class FlatpageAdmin(admin.ModelAdmin):
     pass
 
-class ContactusAdmin(admin.ModelAdmin):
-    pass
 
 #===============================================================================
 # end admin models
