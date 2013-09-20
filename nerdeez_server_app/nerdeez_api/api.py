@@ -31,7 +31,7 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login, logout
 from tastypie.http import HttpUnauthorized, HttpForbidden, HttpAccepted,\
-    HttpCreated, HttpApplicationError, HttpBadRequest
+    HttpCreated, HttpApplicationError, HttpBadRequest,HttpConflict
 from django.conf.urls import url
 from tastypie.utils import trailing_slash
 from django.utils import simplejson
@@ -209,6 +209,16 @@ class UtilitiesResource(NerdeezResource):
         post_values['password1'] = password
         post_values['password2'] = password
         post_values['email'] = email
+        
+        #is the email already exists?
+        try:
+            user = User.objects.get(email=email)
+            return self.create_response(request, {
+                    'success': False,
+                    'message': 'User with this mail address already exists',
+                    }, HttpConflict )
+        except:
+            pass
         
         #validation success
         user_form = UserCreateForm(post_values)
