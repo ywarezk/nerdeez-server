@@ -136,7 +136,7 @@ class UtilitiesResource(NerdeezResource):
         mail = post.get('mail')
         admin_mail = os.environ['ADMIN_MAIL']
         
-        t = get_template('contact_us_email.html')
+        t = get_template('emails/contact_us_email.html')
         html = t.render(Context({'mail': mail, 'message': message}))
         text_content = strip_tags(html)
         msg = EmailMultiAlternatives(u'Nerdeez contact us', text_content, settings.FROM_EMAIL_ADDRESS, [admin_mail])
@@ -231,6 +231,8 @@ class UtilitiesResource(NerdeezResource):
             user = authenticate(username=username,
                                 password=password)
             login(request, user)
+            user.is_active = false
+            user.save()
             
             #create the api key
             api_key_object, created = ApiKey.objects.get_or_create(user=user)
@@ -240,7 +242,21 @@ class UtilitiesResource(NerdeezResource):
             email_hash = api_key.generate_key()
             user_profile = user.profile
             user_profile.email_hash = email_hash
-            user_profile.save
+            user_profile.save()
+            
+            #send the verification mail
+            t = get_template('emails/verify_email_mail.html')
+            html = t.render(Context({'hash': user_profile.email_hash, 'url': os.environ['CLIENT_SITE_URL'] + '#/verify_email/', 'email': email}))
+            text_content = strip_tags(html)
+            msg = EmailMultiAlternatives('Nerdeez account activation', text_content, settings.FROM_EMAIL_ADDRESS, [email])
+            msg.attach_alternative(html, "text/html")
+            try:
+                msg.send()
+            except SMTPSenderRefused, e:
+                return self.create_response(request, {
+                    'success': False,
+                    'message': 'Failed to send activation mail',
+                    }, HttpApplicationError )
             
             #return the status code
             return self.create_response(request, {
