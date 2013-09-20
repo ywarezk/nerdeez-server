@@ -231,7 +231,7 @@ class UtilitiesResource(NerdeezResource):
             user = authenticate(username=username,
                                 password=password)
             login(request, user)
-            user.is_active = false
+            user.is_active = False
             user.save()
             
             #create the api key
