@@ -14,6 +14,7 @@ Created on June 21, 2013
 from django.db import models
 import datetime
 from django.db.models import Q
+from django.contrib.auth.models import User
 
 #===============================================================================
 # end imports
@@ -59,6 +60,13 @@ class NerdeezModel(models.Model):
 #===============================================================================
 # begin tables - models
 #===============================================================================
+
+class UserProfile(NerdeezModel):
+    '''
+    will hold the models for a user profile
+    '''
+    user = models.ForeignKey(User, unique=True)
+    email_hash = models.CharField(max_length=100, blank = True, null = True, default="")
         
 class SchoolGroup(NerdeezModel):
     '''
@@ -103,3 +111,14 @@ class Flatpage(NerdeezModel):
 #===============================================================================
 # end tables - models
 #===============================================================================
+
+#===============================================================================
+# begin signals
+#===============================================================================
+
+User.profile = property(lambda u: UserProfile.objects.get_or_create(user=u)[0])
+
+#===============================================================================
+# end signals
+#===============================================================================
+

@@ -236,10 +236,16 @@ class UtilitiesResource(NerdeezResource):
             api_key_object, created = ApiKey.objects.get_or_create(user=user)
             api_key_object.save()
             
+            #creathe the email hash
+            email_hash = api_key.generate_key()
+            user_profile = user.profile
+            user_profile.email_hash = email_hash
+            user_profile.save
+            
             #return the status code
             return self.create_response(request, {
                     'success': True,
-                    'message': 'Successfully created the account',
+                    'message': 'Successfully created the account, Verification mail was sent to your mail address',
                     'username': user.username,
                     'api_key': api_key_object.key
                     }, HttpCreated )

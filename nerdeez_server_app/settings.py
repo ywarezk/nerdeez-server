@@ -190,3 +190,6 @@ AWS_SECRET_ACCESS_KEY = os.environ['NERDEEZ_ENV_AWS_SECRET_ACCESS_KEY']
 AWS_STORAGE_BUCKET_NAME = os.environ['NERDEEZ_ENV_AWS_STORAGE_BUCKET_NAME']
 STATICFILES_STORAGE = 'storages.backends.s3boto.S3BotoStorage'
 
+#tell django about the user profile
+AUTH_PROFILE_MODULE = "nerdeez_server_app.UserProfile"
+
