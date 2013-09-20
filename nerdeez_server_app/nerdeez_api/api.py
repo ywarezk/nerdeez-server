@@ -231,7 +231,7 @@ class UtilitiesResource(NerdeezResource):
                     'success': True,
                     'message': 'Successfully created the account',
                     'username': user.username,
-                    'api_key': api_key.key
+                    'api_key': api_key_object.key
                     }, HttpCreated )
             
         #validation failed    
