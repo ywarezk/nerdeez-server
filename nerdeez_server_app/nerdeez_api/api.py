@@ -194,13 +194,21 @@ class UtilitiesResource(NerdeezResource):
                     409 conflict with existing account
         '''
         
+        #get params
+        post = simplejson.loads(request.body)
+        password = post.get('password')
+        email = post.get('email')
+        
         #create the username
         api_key = ApiKey()
-        username = api_key.generate_key()
+        username = api_key.generate_key()[0:30]
         
         #set the request post to contain email password and username
-        post_values = request.POST.copy()
+        post_values = {}
         post_values['username'] = username
+        post_values['password1'] = password
+        post_values['password2'] = password
+        post_values['email'] = email
         
         #validation success
         user_form = UserCreateForm(post_values)
