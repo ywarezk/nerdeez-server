@@ -223,7 +223,7 @@ class UtilitiesResource(NerdeezResource):
             login(request, user)
             
             #create the api key
-            api_key_object = ApiKey.objects.get_or_create(user=user)
+            api_key_object, created = ApiKey.objects.get_or_create(user=user)
             api_key_object.save()
             
             #return the status code
