@@ -199,10 +199,11 @@ class UtilitiesResource(NerdeezResource):
         username = api_key.generate_key()
         
         #set the request post to contain email password and username
-        request.POST['username'] = username
+        post_values = request.POST.copy()
+        post_values['username'] = username
         
         #validation success
-        user_form = UserCreateForm(request.POST)
+        user_form = UserCreateForm(post_values)
         if user_form.is_valid():
             
             #create the user
