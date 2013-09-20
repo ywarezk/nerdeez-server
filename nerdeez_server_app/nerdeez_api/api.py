@@ -231,7 +231,7 @@ class UtilitiesResource(NerdeezResource):
         else:
             return self.create_response(request, {
                     'success': False,
-                    'message': 'Form validation failed',
+                    'message': [(k, v[0].__unicode__()) for k, v in user_form.errors.items()],
                     }, HttpBadRequest )
             
             
