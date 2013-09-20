@@ -196,7 +196,7 @@ class UtilitiesResource(NerdeezResource):
         
         #create the username
         api_key = ApiKey()
-        username = api.generate_key()
+        username = api_key.generate_key()
         
         #set the request post to contain email password and username
         request.POST['username'] = username
