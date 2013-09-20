@@ -193,3 +193,16 @@ STATICFILES_STORAGE = 'storages.backends.s3boto.S3BotoStorage'
 #tell django about the user profile
 AUTH_PROFILE_MODULE = "nerdeez_server_app.UserProfile"
 
+#for send grid
+try:
+    EMAIL_HOST_USER = os.environ['SENDGRID_USERNAME']
+    EMAIL_HOST= 'smtp.sendgrid.net'
+    EMAIL_PORT = 587
+    EMAIL_USE_TLS = True
+    EMAIL_HOST_PASSWORD = os.environ['SENDGRID_PASSWORD']
+except:
+    pass
+
+#when sending mail the user will see this address
+FROM_EMAIL_ADDRESS = 'noreply@nerdeez.com'
+

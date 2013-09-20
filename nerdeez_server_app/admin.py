@@ -28,6 +28,9 @@ class SchoolGroupAdmin(admin.ModelAdmin):
 class FlatpageAdmin(admin.ModelAdmin):
     pass
 
+class UserProfileAdmin(admin.ModelAdmin):
+    pass
+
 
 #===============================================================================
 # end admin models
@@ -39,6 +42,7 @@ class FlatpageAdmin(admin.ModelAdmin):
 
 admin.site.register(SchoolGroup, SchoolGroupAdmin)
 admin.site.register(Flatpage, FlatpageAdmin)
+admin.site.register(UserProfile, UserProfileAdmin)
 
 
 #===============================================================================

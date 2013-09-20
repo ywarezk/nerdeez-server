@@ -67,6 +67,13 @@ class UserProfile(NerdeezModel):
     '''
     user = models.ForeignKey(User, unique=True)
     email_hash = models.CharField(max_length=100, blank = True, null = True, default="")
+    
+    def __unicode__(self):
+        '''
+        object description string
+        @returns String: object description
+        '''
+        return self.user.email
         
 class SchoolGroup(NerdeezModel):
     '''
