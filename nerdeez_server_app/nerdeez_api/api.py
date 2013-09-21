@@ -124,6 +124,9 @@ class UtilitiesResource(NerdeezResource):
             url(r"^(?P<resource_name>%s)/register%s$" %
                 (self._meta.resource_name, trailing_slash()),
                 self.wrap_view('register'), name="api_register"),
+            url(r"^(?P<resource_name>%s)/verify-email%s$" %
+                (self._meta.resource_name, trailing_slash()),
+                self.wrap_view('verify_email'), name="api_verify_email"),
         ]
         
     def contact(self, request=None, **kwargs):
@@ -246,7 +249,7 @@ class UtilitiesResource(NerdeezResource):
             
             #send the verification mail
             t = get_template('emails/verify_email_mail.html')
-            html = t.render(Context({'hash': user_profile.email_hash, 'url': os.environ['CLIENT_SITE_URL'] + '#/verify_email/', 'email': email}))
+            html = t.render(Context({'hash': user_profile.email_hash, 'url': os.environ['CLIENT_SITE_URL'] + '#/verify-email/', 'email': email}))
             text_content = strip_tags(html)
             msg = EmailMultiAlternatives('Nerdeez account activation', text_content, settings.FROM_EMAIL_ADDRESS, [email])
             msg.attach_alternative(html, "text/html")
@@ -272,6 +275,44 @@ class UtilitiesResource(NerdeezResource):
                     'success': False,
                     'message': [(k, v[0]) for k, v in user_form.errors.items()],
                     }, HttpBadRequest )
+                    
+    def verify_email(self, request=None, **kwargs):
+        '''
+        verify the email hash and mark the user as active will get as post the following params
+        @param: email
+        @param: hash
+        @returns: 400 if this is a bad request, or 200 for success
+        '''
+        
+        #get the params
+        post = simplejson.loads(request.body)
+        hash = post.get('hash')
+        email = post.get('email')
+        
+        #find the user with this email address
+        try:
+            user = User.objects.get(email=email)
+        except:
+            return self.create_response(request, {
+                    'success': False,
+                    'message': 'Email verification failed',
+                    }, HttpBadRequest )
+        
+        #check that the hash match
+        user_profile = user.profile
+        if user_profile.email_hash == hash:
+            user.is_active = True
+            user.save()
+            return self.create_response(request, {
+                    'success': True,
+                    'message': 'Account is now activated',
+                    })
+        else:
+            return self.create_response(request, {
+                    'success': False,
+                    'message': 'Email verification failed',
+                    }, HttpBadRequest )
+        
             
             
         
