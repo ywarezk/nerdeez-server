@@ -68,7 +68,6 @@ class UserProfile(NerdeezModel):
     '''
     user = models.ForeignKey(User, unique=True)
     email_hash = models.CharField(max_length=100, blank = True, null = True, default="")
-    facebook_access_token = models.CharField(max_length = 255, null = True, blank = True, default="")
     
     def __unicode__(self):
         '''

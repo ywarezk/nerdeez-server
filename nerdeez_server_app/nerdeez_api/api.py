@@ -470,10 +470,14 @@ class UtilitiesResource(NerdeezResource):
         try:
             user = User.objects.get(email=email)
         except:
-            return self.create_response(request, {
-                    'is_logged_in': False,
-                    'message': 'The user is not logged in',
-                    })
+            #create the user object
+            api_key = ApiKey()
+            username = api_key.generate_key()[0:30]
+            user = User()
+            user.username = username
+            user.email = email
+            user.is_active = True
+            user.save()
             
         #delete all the old api keys
         api_keys = ApiKey.objects.filter(user=user)
