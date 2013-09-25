@@ -62,10 +62,35 @@ class NerdeezResource(ModelResource):
         ordering = ['title']
         excludes = ['search_index']
         
+
+        
+
+
+#===============================================================================
+# end abstract resources
+#===============================================================================
+
+#===============================================================================
+# begin global function
+#===============================================================================
+
+def is_send_grid():
+    return 'SENDGRID_USERNAME' in os.environ
+
+#===============================================================================
+# end global function
+#===============================================================================
+
+#===============================================================================
+# begin the actual rest api
+#===============================================================================
+
+
 class SchoolGroupResource(NerdeezResource):
     '''
-    abstract class for common rest stuff for a school group: university, faculty, model
+    resource for school groups like university, faculty, search
     '''
+    
     parent =  fields.ToOneField('self', 'parent', full=True, null=True)
     class Meta(NerdeezResource.Meta):
         allowed_methods = ['get', 'post', 'put']
@@ -79,19 +104,7 @@ class SchoolGroupResource(NerdeezResource):
         if request.GET.get('search') != None:
             return self.Meta.object_class.search(request.GET.get('search'))
         else:
-            return super(SchoolGroupResource, self).get_object_list(request)
-        
-
-
-#===============================================================================
-# end abstract resources
-#===============================================================================
-
-#===============================================================================
-# begin the actual rest api
-#===============================================================================
-
-        
+            return super(SchoolGroupResource, self).get_object_list(request)       
         
         
 class FlatpageResource(NerdeezResource):
@@ -164,8 +177,9 @@ class UtilitiesResource(NerdeezResource):
         '''
         
         #get the params
-        email = request.POST.get('email', '')
-        password = request.POST.get('password', '')
+        post = simplejson.loads(request.body)
+        password = post.get('password')
+        email = post.get('email')
         
         #get the user with that email address
         try:
@@ -173,14 +187,14 @@ class UtilitiesResource(NerdeezResource):
         except:
             return self.create_response(request, {
                     'success': False,
-                    'message': 'Invalid email or password',
+                    'message': 'Invalid email or password1',
                     }, HttpUnauthorized )
         
         user = auth.authenticate(username=user.username, password=password)
         if user is None:
             return self.create_response(request, {
                     'success': False,
-                    'message': 'Invalid email or password',
+                    'message': 'Invalid email or password2',
                     }, HttpUnauthorized )
         if not user.is_active:
             return self.create_response(request, {
@@ -246,8 +260,6 @@ class UtilitiesResource(NerdeezResource):
             user = authenticate(username=username,
                                 password=password)
             login(request, user)
-            user.is_active = False
-            user.save()
             
             #create the api key
             api_key_object, created = ApiKey.objects.get_or_create(user=user)
@@ -260,18 +272,21 @@ class UtilitiesResource(NerdeezResource):
             user_profile.save()
             
             #send the verification mail
-            t = get_template('emails/verify_email_mail.html')
-            html = t.render(Context({'hash': user_profile.email_hash, 'url': os.environ['CLIENT_SITE_URL'] + '#/verify-email/', 'email': email}))
-            text_content = strip_tags(html)
-            msg = EmailMultiAlternatives('Nerdeez account activation', text_content, settings.FROM_EMAIL_ADDRESS, [email])
-            msg.attach_alternative(html, "text/html")
-            try:
-                msg.send()
-            except SMTPSenderRefused, e:
-                return self.create_response(request, {
-                    'success': False,
-                    'message': 'Failed to send activation mail',
-                    }, HttpApplicationError )
+            if is_send_grid():
+                user.is_active = False
+                user.save()
+                t = get_template('emails/verify_email_mail.html')
+                html = t.render(Context({'hash': user_profile.email_hash, 'url': os.environ['CLIENT_SITE_URL'] + '#/verify-email/', 'email': email}))
+                text_content = strip_tags(html)
+                msg = EmailMultiAlternatives('Nerdeez account activation', text_content, settings.FROM_EMAIL_ADDRESS, [email])
+                msg.attach_alternative(html, "text/html")
+                try:
+                    msg.send()
+                except SMTPSenderRefused, e:
+                    return self.create_response(request, {
+                        'success': False,
+                        'message': 'Failed to send activation mail',
+                        }, HttpApplicationError )
             
             #return the status code
             return self.create_response(request, {

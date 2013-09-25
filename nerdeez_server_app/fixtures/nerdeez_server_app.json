@@ -1,48 +1,54 @@
 [
 {
     "pk": 1, 
-    "model": "nerdeez_server_app.university", 
+    "model": "nerdeez_server_app.schoolgroup", 
     "fields": {
-        "description": "Israel's Institute of Technology", 
+        "description": "IIT - Israel's Institute of Technology", 
+        "parent": null, 
         "title": "Technion", 
-        "modified_data": "2013-06-29T11:24:55.664Z", 
-        "image": "", 
-        "creation_date": "2013-06-29T11:23:56Z"
+        "grade": "3.5", 
+        "creation_date": "2013-09-25T05:24:16Z", 
+        "school_type": 3, 
+        "modified_data": "2013-09-25T05:24:48.404Z"
     }
 },
 {
     "pk": 2, 
-    "model": "nerdeez_server_app.university", 
+    "model": "nerdeez_server_app.schoolgroup", 
     "fields": {
-        "description": "Israel Tel Aviv University", 
-        "title": "Tel Aviv University", 
-        "modified_data": "2013-06-30T08:27:08.009Z", 
-        "image": "", 
-        "creation_date": "2013-06-30T08:26:14Z"
+        "description": "Technion's Computer Science faculty", 
+        "parent": 1, 
+        "title": "Computer Science", 
+        "grade": "3.5", 
+        "creation_date": "2013-09-25T05:25:35Z", 
+        "school_type": 2, 
+        "modified_data": "2013-09-25T05:26:08.557Z"
     }
 },
 {
-    "pk": 1, 
-    "model": "nerdeez_server_app.course", 
+    "pk": 3, 
+    "model": "nerdeez_server_app.schoolgroup", 
     "fields": {
-        "description": "Numerical Analysis 1", 
-        "title": "234107", 
-        "image": "", 
-        "creation_date": "2013-06-30T08:30:47Z", 
-        "university": 1, 
-        "modified_data": "2013-06-30T08:32:00.015Z"
+        "description": "Matam course in Computer Science faculty in Technion University", 
+        "parent": 2, 
+        "title": "234122", 
+        "grade": "3.5", 
+        "creation_date": "2013-09-25T05:26:38Z", 
+        "school_type": 1, 
+        "modified_data": "2013-09-25T05:28:11.685Z"
     }
 },
 {
-    "pk": 2, 
-    "model": "nerdeez_server_app.course", 
+    "pk": 4, 
+    "model": "nerdeez_server_app.schoolgroup", 
     "fields": {
-        "description": "Combinatorics for Computer Science", 
-        "title": "234141", 
-        "image": "", 
-        "creation_date": "2013-06-30T08:32:39Z", 
-        "university": 1, 
-        "modified_data": "2013-06-30T08:33:43.254Z"
+        "description": "Atam course in Technion", 
+        "parent": 2, 
+        "title": "234118", 
+        "grade": "3.5", 
+        "creation_date": "2013-09-25T05:40:38Z", 
+        "school_type": 1, 
+        "modified_data": "2013-09-25T05:41:08.366Z"
     }
 }
 ]

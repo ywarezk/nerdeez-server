@@ -36,14 +36,14 @@ class ApiTest(ResourceTestCase):
         3 - make sure search query technion in course yields 2 result
         '''
         
-        resp = self.api_client.get('/api/v1/university/', format='json', data={'search': 'technion'})
-        self.assertEqual(self.deserialize(resp)['meta']['total_count'], 1)
+        resp = self.api_client.get('/api/v1/schoolgroup/', format='json', data={'search': 'technion'})
+        self.assertEqual(self.deserialize(resp)['meta']['total_count'], 4)
         
-        resp = self.api_client.get('/api/v1/university/', format='json', data={'search': 'sdghskod'})
+        resp = self.api_client.get('/api/v1/schoolgroup/', format='json', data={'search': 'sdghskod'})
         self.assertEqual(self.deserialize(resp)['meta']['total_count'], 0)
         
-        resp = self.api_client.get('/api/v1/course/', format='json', data={'search': 'technion'})
-        self.assertEqual(self.deserialize(resp)['meta']['total_count'], 2)
+        resp = self.api_client.get('/api/v1/schoolgroup/', format='json', data={'search': 'matam'})
+        self.assertEqual(self.deserialize(resp)['meta']['total_count'], 1)
         
     def test_flatpage(self):
         '''
@@ -58,6 +58,17 @@ class ApiTest(ResourceTestCase):
         '''
         resp = self.api_client.post('/api/v1/utilities/contact/', format='json', data={'mail': 'mail', 'message': 'testmessage'})
         self.assertHttpAccepted(resp)
+        
+    def test_register(self):
+        '''
+        test the registration
+        '''
+        resp = self.api_client.post('/api/v1/utilities/register/', format='json', data={'email': 'yariv@nerdeez.com', 'password': '12345'})
+        self.assertHttpCreated(resp)
+        
+        resp = self.api_client.post('/api/v1/utilities/login/', format='json', data={'email': 'yariv@nerdeez.com', 'password': '12345'})
+        self.assertHttpAccepted(resp)
+        
         
         
 

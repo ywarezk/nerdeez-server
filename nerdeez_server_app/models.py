@@ -15,6 +15,7 @@ from django.db import models
 import datetime
 from django.db.models import Q
 from django.contrib.auth.models import User
+from decimal import Decimal
 
 #===============================================================================
 # end imports
@@ -82,9 +83,9 @@ class SchoolGroup(NerdeezModel):
     # table columns
     title = models.CharField(max_length=250, blank=False, null=False)
     description = models.CharField(max_length=250, blank=True, null=False, default="")
-    image = models.ImageField(upload_to='group_profile_image', default=None, null=True, blank=True)
     parent = models.ForeignKey('self', blank=True, null=True, default=None, related_name='university')
     school_type = models.IntegerField(choices = SCHOOL_TYPES, default = DEFAULT_SCHOOL_TYPE, blank=False, null=False)
+    grade = models.DecimalField(max_digits = 3, decimal_places = 1, default = Decimal("3.5"))
     
     def __unicode__(self):
         return self.title
