@@ -162,9 +162,21 @@ class UtilitiesResource(NerdeezResource):
         login request is sent here
         @return: 401 if login failed with a disctionary with a message, or 200 with the api key and password
         '''
+        
+        #get the params
         email = request.POST.get('email', '')
         password = request.POST.get('password', '')
-        user = auth.authenticate(username=email, password=password)
+        
+        #get the user with that email address
+        try:
+            user = User.objects.get(email=email)
+        except:
+            return self.create_response(request, {
+                    'success': False,
+                    'message': 'Invalid email or password',
+                    }, HttpUnauthorized )
+        
+        user = auth.authenticate(username=user.username, password=password)
         if user is None:
             return self.create_response(request, {
                     'success': False,
