@@ -107,6 +107,7 @@ TEMPLATE_LOADERS = (
 #     'django.template.loaders.eggs.Loader',
 )
 
+
 MIDDLEWARE_CLASSES = (
     'django.middleware.common.CommonMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -182,6 +183,7 @@ INSTALLED_APPS = INSTALLED_APPS + ('gunicorn',)
 INSTALLED_APPS = INSTALLED_APPS + ('south',)
 INSTALLED_APPS = INSTALLED_APPS + ('nerdeez_server_app',)
 INSTALLED_APPS = INSTALLED_APPS + ('tastypie',)
+# INSTALLED_APPS = INSTALLED_APPS + ('django_facebook',)
 
 #s3 storage
 DEFAULT_FILE_STORAGE = 'storages.backends.s3boto.S3BotoStorage'
@@ -206,3 +208,6 @@ except:
 #when sending mail the user will see this address
 FROM_EMAIL_ADDRESS = 'noreply@nerdeez.com'
 
+FACEBOOK_APP_SECRET = os.environ.get('FACEBOOK_APP_SECRET', '')
+FACEBOOK_APP_ID = os.environ.get('FACEBOOK_APP_ID', '')
+# AUTH_USER_MODEL = 'django_facebook.FacebookCustomUser'

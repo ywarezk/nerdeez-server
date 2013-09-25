@@ -38,6 +38,11 @@ from django.utils import simplejson
 from django.contrib import auth
 from tastypie.models import ApiKey
 from nerdeez_server_app.forms import *
+from django.utils import simplejson as json
+import base64, hmac, hashlib
+from nerdeez_server_app import settings
+from django_facebook.connect import connect_user
+import fb
 
 #===============================================================================
 # end imports
@@ -75,7 +80,41 @@ class NerdeezResource(ModelResource):
 #===============================================================================
 
 def is_send_grid():
+    '''
+    determine if i can send mails in this server
+    @return: True if i can
+    '''
     return 'SENDGRID_USERNAME' in os.environ
+
+def fb_request_decode(signed_request):
+    '''
+    will get the data from a facebook signed request
+    @param signed_request: 
+    @return: Object the decoded data 
+    '''
+    
+    fb_app_secret = settings.FACEBOOK_APP_SECRET
+    s = [s.encode('ascii') for s in signed_request.split('.')]
+
+    fb_sig = base64.urlsafe_b64decode(s[0] + '=')
+    fb_data = json.loads(base64.urlsafe_b64decode(s[1]))
+    fb_hash = hmac.new(fb_app_secret, s[1], hashlib.sha256).digest()
+
+    sig_match = False
+    if fb_sig == fb_hash:
+        sig_match = True
+
+    auth = False
+    if 'user_id' in fb_data:
+        auth = True
+
+    return {
+        'fb_sig' : fb_sig,
+        'fb_data' : fb_data,
+        'fb_hash' : fb_hash,
+        'sig_match' : sig_match,
+        'auth' : auth,
+    }
 
 #===============================================================================
 # end global function
@@ -140,6 +179,15 @@ class UtilitiesResource(NerdeezResource):
             url(r"^(?P<resource_name>%s)/verify-email%s$" %
                 (self._meta.resource_name, trailing_slash()),
                 self.wrap_view('verify_email'), name="api_verify_email"),
+            url(r"^(?P<resource_name>%s)/is-login%s$" %
+                (self._meta.resource_name, trailing_slash()),
+                self.wrap_view('is_login'), name="api_is_login"),
+            url(r"^(?P<resource_name>%s)/logout%s$" %
+                (self._meta.resource_name, trailing_slash()),
+                self.wrap_view('logout'), name="api_logout"),
+            url(r"^(?P<resource_name>%s)/fb-login%s$" %
+                (self._meta.resource_name, trailing_slash()),
+                self.wrap_view('fb_login'), name="api_fb_login"),
         ]
         
     def contact(self, request=None, **kwargs):
@@ -180,6 +228,7 @@ class UtilitiesResource(NerdeezResource):
         post = simplejson.loads(request.body)
         password = post.get('password')
         email = post.get('email')
+        remember_me = post.get('remember_me')
         
         #get the user with that email address
         try:
@@ -210,6 +259,14 @@ class UtilitiesResource(NerdeezResource):
         api_keys.delete()
         api_key, created = ApiKey.objects.get_or_create(user=user)
         api_key.save()
+
+        #if the user set the remeber me then the sessions should expire in 1 week
+        if remember_me:
+            request.session.set_expiry(60*60*24*7)
+                
+        #store cradentials in session
+        request.session['api_key'] = api_key.key
+        request.session['username'] = user.username
         
         return self.create_response(request, {
                     'success': True,
@@ -262,10 +319,6 @@ class UtilitiesResource(NerdeezResource):
             user = authenticate(username=username,
                                 password=password)
             login(request, user)
-            
-            #create the api key
-#             api_key_object, created = ApiKey.objects.get_or_create(user=user)
-#             api_key_object.save()
             
             #creathe the email hash
             email_hash = api_key.generate_key()
@@ -339,6 +392,108 @@ class UtilitiesResource(NerdeezResource):
                     'success': False,
                     'message': 'Email verification failed',
                     }, HttpBadRequest )
+            
+    def is_login(self, request=None, **kwargs):
+        '''
+        check to see if the user is logged in
+        '''
+        
+        #get the api key and the username from the session
+        api_key = request.session.get('api_key', '')
+        username = request.session.get('username', '')
+        
+        #find the user with that username
+        try:
+            user = User.objects.get(username=username)
+        except:
+            return self.create_response(request, {
+                    'is_logged_in': False,
+                    'message': 'The user is not logged in',
+                    })
+            
+        #find the api key object of the user
+        try:
+            api_key_object = ApiKey.objects.get(user=user)
+        except:
+            return self.create_response(request, {
+                    'is_logged_in': False,
+                    'message': 'The user is not logged in',
+                    })
+            
+        #verify that the api keys are equal in the session and in the object
+        if api_key == api_key_object.key:
+            return self.create_response(request, {
+                    'is_logged_in': True,
+                    'message': 'The user is logged in',
+                    })
+        else:
+            return self.create_response(request, {
+                    'is_logged_in': False,
+                    'message': 'The user is not logged in',
+                    })
+            
+    def logout(self, request=None, **kwargs):
+        '''
+        logs the user out
+        '''
+        
+        #delete the session keys
+        try:
+            del request.session['api_key']
+            del request.session['username']
+        except:
+            pass
+        
+        return self.create_response(request, {
+                    'is_logged_in': False,
+                    'message': 'The user is not logged in',
+                    })
+        
+    def fb_login(self, request=None, **kwargs):
+        '''
+        will login the user using facebook
+        '''
+        
+        #get the params
+        post = simplejson.loads(request.body)
+        access_token = post.get('access_token')
+        signed_request = post.get('signed_request')
+        
+        #get the email of the user
+        fb_decode = fb_request_decode(signed_request)
+        fb_user_id = fb_decode['fb_data']['user_id']
+        facebook=fb.graph.api(access_token)
+        object=facebook.get_object(cat="single", id=fb_user_id, fields=[ ] )
+        email = object['email']
+        
+        #find the user
+        try:
+            user = User.objects.get(email=email)
+        except:
+            return self.create_response(request, {
+                    'is_logged_in': False,
+                    'message': 'The user is not logged in',
+                    })
+            
+        #delete all the old api keys
+        api_keys = ApiKey.objects.filter(user=user)
+        api_keys.delete()
+        
+        #create a new api key
+        api_key, created = ApiKey.objects.get_or_create(user=user)
+        api_key.save()
+        
+        #store the keys in the session
+        request.session['api_key'] = api_key.key
+        request.session['username'] = user.username
+        
+        return self.create_response(request, {
+                    'is_logged_in': True,
+                    'message': 'The user is logged in',
+                    })
+        
+        
+        
         
             
             
