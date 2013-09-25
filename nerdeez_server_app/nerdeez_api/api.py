@@ -187,14 +187,14 @@ class UtilitiesResource(NerdeezResource):
         except:
             return self.create_response(request, {
                     'success': False,
-                    'message': 'Invalid email or password1',
+                    'message': 'Invalid email or password',
                     }, HttpUnauthorized )
         
         user = auth.authenticate(username=user.username, password=password)
         if user is None:
             return self.create_response(request, {
                     'success': False,
-                    'message': 'Invalid email or password2',
+                    'message': 'Invalid email or password',
                     }, HttpUnauthorized )
         if not user.is_active:
             return self.create_response(request, {
@@ -205,13 +205,15 @@ class UtilitiesResource(NerdeezResource):
         # Correct password, and the user is marked "active"
         auth.login(request, user)
         
-        #successfull login return the username and api key
-        api_key = ApiKey.objects.get(user=user)
+        #successfull login delete all the old api key of the user and create a new one
+        api_keys = ApiKey.objects.filter(user=user)
+        api_keys.delete()
+        api_key, created = ApiKey.objects.get_or_create(user=user)
+        api_key.save()
+        
         return self.create_response(request, {
                     'success': True,
-                    'message': 'Successfully logged in',
-                    'username': user.username,
-                    'api_key': api_key.key
+                    'message': 'Successfully logged in'
                     }, HttpAccepted )
                     
     def register(self, request=None, **kwargs):
@@ -262,8 +264,8 @@ class UtilitiesResource(NerdeezResource):
             login(request, user)
             
             #create the api key
-            api_key_object, created = ApiKey.objects.get_or_create(user=user)
-            api_key_object.save()
+#             api_key_object, created = ApiKey.objects.get_or_create(user=user)
+#             api_key_object.save()
             
             #creathe the email hash
             email_hash = api_key.generate_key()
@@ -292,8 +294,6 @@ class UtilitiesResource(NerdeezResource):
             return self.create_response(request, {
                     'success': True,
                     'message': 'Successfully created the account, Verification mail was sent to your mail address',
-                    'username': user.username,
-                    'api_key': api_key_object.key
                     }, HttpCreated )
             
         #validation failed    
