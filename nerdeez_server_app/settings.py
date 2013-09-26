@@ -208,6 +208,10 @@ except:
 #when sending mail the user will see this address
 FROM_EMAIL_ADDRESS = 'noreply@nerdeez.com'
 
+#for facebook auth
 FACEBOOK_APP_SECRET = os.environ.get('FACEBOOK_APP_SECRET', '')
 FACEBOOK_APP_ID = os.environ.get('FACEBOOK_APP_ID', '')
-# AUTH_USER_MODEL = 'django_facebook.FacebookCustomUser'
+
+#for twitter auth
+TWITTER_KEY = os.environ.get('TWITTER_KEY', '')
+TWITTER_SECRET = os.environ.get('TWITTER_SECRET', '')

@@ -68,6 +68,8 @@ class UserProfile(NerdeezModel):
     '''
     user = models.ForeignKey(User, unique=True)
     email_hash = models.CharField(max_length=100, blank = True, null = True, default="")
+    twitter_oauth_token = models.CharField(max_length=255, blank = True, null = True, default="")
+    twitter_oauth_token_secret = models.CharField(max_length=255, blank = True, null = True, default="")
     
     def __unicode__(self):
         '''

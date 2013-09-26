@@ -43,6 +43,7 @@ import base64, hmac, hashlib
 from nerdeez_server_app import settings
 from django_facebook.connect import connect_user
 import fb
+from twython import Twython
 
 #===============================================================================
 # end imports
@@ -188,6 +189,12 @@ class UtilitiesResource(NerdeezResource):
             url(r"^(?P<resource_name>%s)/fb-login%s$" %
                 (self._meta.resource_name, trailing_slash()),
                 self.wrap_view('fb_login'), name="api_fb_login"),
+            url(r"^(?P<resource_name>%s)/twitter-login%s$" %
+                (self._meta.resource_name, trailing_slash()),
+                self.wrap_view('twitter_login'), name="api_twitter_login"),
+            url(r"^(?P<resource_name>%s)/twitter-login-callback%s$" %
+                (self._meta.resource_name, trailing_slash()),
+                self.wrap_view('twitter_login_callback'), name="api_twitter_login_callback"),
         ]
         
     def contact(self, request=None, **kwargs):
@@ -473,10 +480,12 @@ class UtilitiesResource(NerdeezResource):
             #create the user object
             api_key = ApiKey()
             username = api_key.generate_key()[0:30]
+            password = api_key.generate_key()[0:30]
             user = User()
             user.username = username
             user.email = email
             user.is_active = True
+            user.password = password
             user.save()
             
         #delete all the old api keys
@@ -495,6 +504,75 @@ class UtilitiesResource(NerdeezResource):
                     'is_logged_in': True,
                     'message': 'The user is logged in',
                     })
+        
+    def twitter_login(self, request=None, **kwargs):
+        '''
+        used to login the user via twitter 
+        '''
+        twitter = Twython(settings.TWITTER_KEY, settings.TWITTER_SECRET)
+        auth = twitter.get_authentication_tokens(callback_url=os.environ.get('CLIENT_SITE_URL', 'http://nerdeez.com/#/login/') )
+        request.session['OAUTH_TOKEN'] = auth['oauth_token']
+        request.session['OAUTH_TOKEN_SECRET'] = auth['oauth_token_secret']
+        return self.create_response(request, {
+                    'auth_url': auth['auth_url'],
+                    'message': 'waiting for the user to authorize',
+                    })
+        
+    def twitter_login_callback(self, request=None, **kwargs):
+        '''
+        when we have the oauth verifier then send it through this api
+        '''
+        
+        #get the params twitter need
+        post = simplejson.loads(request.body)
+        twitter_key = settings.TWITTER_KEY
+        twitter_secret = settings.TWITTER_SECRET
+        oauth_token = request.session.get('OAUTH_TOKEN', '')
+        oauth_token_secret = request.session.get('OAUTH_TOKEN_SECRET', '')
+        oauth_verifier = post.get('oauth_verifier', '')
+        
+        #get the params from the login
+        twitter = Twython(twitter_key, twitter_secret,oauth_token, oauth_token_secret)
+        final_step = twitter.get_authorized_tokens(oauth_verifier)
+        user_oauth_token = final_step['oauth_token']
+        user_oauth_token_secret = final_step['oauth_token_secret']
+        
+        #find existing user or create a new one
+        try:
+            userprofile = UserProfile.objects.get(twitter_oauth_token=user_oauth_token, twitter_oauth_token_secret=user_oauth_token_secret)
+            user = userprofile.user
+        except:
+            #create a user and user profile
+            api_key = ApiKey()
+            username = api_key.generate_key()[0:30]
+            password = api_key.generate_key()[0:30]
+            user = User()
+            user.username = username
+            user.is_active = True
+            user.password = password
+            user.save()
+            userprofile = user.profile
+            userprofile.twitter_oauth_token = user_oauth_token
+            userprofile.twitter_oauth_token_secret = user_oauth_token_secret
+            userprofile.save()
+            
+        #delete all the old api keys
+        api_keys = ApiKey.objects.filter(user=user)
+        api_keys.delete()
+        
+        #create a new api key
+        api_key, created = ApiKey.objects.get_or_create(user=user)
+        api_key.save()
+        
+        #store the keys in the session
+        request.session['api_key'] = api_key.key
+        request.session['username'] = user.username
+        
+        return self.create_response(request, {
+                    'is_logged_in': True,
+                    'message': 'The user is logged in',
+                    })
+            
         
         
         
