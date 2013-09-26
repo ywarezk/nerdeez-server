@@ -633,25 +633,12 @@ class UtilitiesResource(NerdeezResource):
         
         #set the new password and return success    
         user.set_password(new_password)
+        user.save()
         return self.create_response(request, {
                     'success': True,
                     'message': "Successfully changed the password.",
                     })
         
-        
-        
-        
-        
-            
-        
-        
-        
-        
-            
-            
-        
-        
-    
 #===============================================================================
 # end teh actual rest api
 #===============================================================================
