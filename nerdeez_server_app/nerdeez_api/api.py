@@ -31,7 +31,7 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login, logout
 from tastypie.http import HttpUnauthorized, HttpForbidden, HttpAccepted,\
-    HttpCreated, HttpApplicationError, HttpBadRequest,HttpConflict
+    HttpCreated, HttpApplicationError, HttpBadRequest,HttpConflict, HttpNotFound
 from django.conf.urls import url
 from tastypie.utils import trailing_slash
 from django.utils import simplejson
@@ -45,6 +45,8 @@ from django_facebook.connect import connect_user
 import fb
 from twython import Twython
 from tastypie.authentication import Authentication
+from django.core.exceptions import ObjectDoesNotExist
+from datetime import timedelta
 
 #===============================================================================
 # end imports
@@ -225,6 +227,12 @@ class UtilitiesResource(NerdeezResource):
             url(r"^(?P<resource_name>%s)/change-password%s$" %
                 (self._meta.resource_name, trailing_slash()),
                 self.wrap_view('change_password'), name="api_change_password"),
+            url(r"^(?P<resource_name>%s)/forget-password%s$" %
+                (self._meta.resource_name, trailing_slash()),
+                self.wrap_view('forget_password'), name="api_forget_password"),
+            url(r"^(?P<resource_name>%s)/reset-password%s$" %
+                (self._meta.resource_name, trailing_slash()),
+                self.wrap_view('reset_password'), name="api_reset_password"),
         ]
         
     def contact(self, request=None, **kwargs):
@@ -638,6 +646,114 @@ class UtilitiesResource(NerdeezResource):
                     'success': True,
                     'message': "Successfully changed the password.",
                     })
+        
+    def forget_password(self, request=None, **kwargs):
+        '''
+        api for the user when he forgets his password
+        @param email
+        @return: 404 if account not found, 200 if all is goot
+        '''
+        
+        #get the params
+        post = simplejson.loads(request.body)
+        email = post.get('email')
+        
+        #get the profile for that mail
+        try:
+            user = User.objects.get(email=email)
+            user_profile = user.profile
+        except:
+            return self.create_response(request, {
+                    'success': False,
+                    'message': "Account with that mail doesn't exist",
+                    }, HttpNotFound)
+            
+        # Delete all old forgot password entries
+        ForgotPass.objects.filter(user=user_profile).delete()
+        
+        #create a new hash key and save the hash
+        forgot_pass = ForgotPass(user=user_profile)
+        forgot_pass.save()
+        hash = forgot_pass.hash
+        
+        #send mail to the user
+        if is_send_grid():
+            t = get_template('forgot_password_email.html')
+            html = t.render(Context({'hash': hash , 'url': os.environ['CLIENT_SITE_URL'] + '#/reset_password/', 'email': email}))
+            text_content = strip_tags(html)
+            msg = EmailMultiAlternatives('Nerdeez - Reset password', text_content, settings.FROM_EMAIL_ADDRESS, [email])
+            msg.attach_alternative(html, "text/html")
+            try:
+                msg.send()
+            except SMTPSenderRefused, e:
+                return self.create_response(request, {
+                        'success': False,
+                        'message': 'Failed to send mail',
+                        }, HttpApplicationError )
+            return self.create_response(request, {
+                        'success': True,
+                        'message': 'Sent mail to reset your password',
+                        })
+        else:
+            return self.create_response(request, {
+                        'success': False,
+                        'message': "Unable to send emails",
+                        }, HttpApplicationError )
+            
+        def reset_password(self, request=None, **kwargs):
+            '''
+            after the user tell that he forgot a password he will be prompt
+            with a new place to set a new password, and it will call this api
+            @param email
+            @param password
+            @param hash
+            @return 200 - success 401 on bad hash 404 on user not found
+            '''
+            
+            #get the params
+            post = simplejson.loads(request.body)
+            email = post.get('email')
+            password = post.get('password')
+            hash = post.get('hash')
+            
+            #check if the hash exists
+            try:
+                hash_object = ForgotPass.objects.get(hash=hash)
+            except ObjectDoesNotExist:
+                return self.create_response(request, {
+                        'success': False,
+                        'message': "Didn't find the change password request",
+                        }, HttpNotFound )
+                
+            #check if the hash is still valid
+            creation_date = hash_object.creation_date.replace(tzinfo=None)
+            now = datetime.datetime.now().replace(microsecond=0)
+            minus_day = (now - timedelta(days=1))
+            if minus_day > creation_date:
+                return self.create_response(request, {
+                        'success': False,
+                        'message': "Change password request is older than 24 hours",
+                        }, HttpBadRequest )
+                
+            # Delete old password link
+            hash_object.delete()
+            
+            #grab the user and change the password and pass success
+            user = User.objects.get(id=hash_object.user.user_id)
+            if user.email == email:
+                user.set_password(password)
+                user.save()
+                return self.create_response(request, {
+                        'success': True,
+                        'message': "Successfully changed the password",
+                        } )
+            else:
+                return self.create_response(request, {
+                        'success': False,
+                        'message': "Email address don't match",
+                        }, HttpNotFound ) 
+            
+            
         
 #===============================================================================
 # end teh actual rest api

@@ -16,6 +16,8 @@ import datetime
 from django.db.models import Q
 from django.contrib.auth.models import User
 from decimal import Decimal
+import string
+import random
 
 #===============================================================================
 # end imports
@@ -77,6 +79,23 @@ class UserProfile(NerdeezModel):
         @returns String: object description
         '''
         return self.user.email
+    
+def createHash():
+    '''
+    will return a random hash
+    @return: random hash as string
+    '''
+    pool = string.letters + string.digits
+    return ''.join(random.choice(pool) for i in xrange(64))
+    
+class ForgotPass(NerdeezModel):
+    '''
+    the table that holds hash and forgot password data
+    '''
+    
+    user = models.ForeignKey(UserProfile)
+    time = models.DateTimeField("time", default=lambda: datetime.datetime.now().replace(microsecond=0))
+    hash = models.CharField(max_length=100 , default=createHash)
         
 class SchoolGroup(NerdeezModel):
     '''
