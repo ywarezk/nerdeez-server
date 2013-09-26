@@ -700,58 +700,58 @@ class UtilitiesResource(NerdeezResource):
                         'message': "Unable to send emails",
                         }, HttpApplicationError )
             
-        def reset_password(self, request=None, **kwargs):
-            '''
-            after the user tell that he forgot a password he will be prompt
-            with a new place to set a new password, and it will call this api
-            @param email
-            @param password
-            @param hash
-            @return 200 - success 401 on bad hash 404 on user not found
-            '''
+    def reset_password(self, request=None, **kwargs):
+        '''
+        after the user tell that he forgot a password he will be prompt
+        with a new place to set a new password, and it will call this api
+        @param email
+        @param password
+        @param hash
+        @return 200 - success 401 on bad hash 404 on user not found
+        '''
+        
+        #get the params
+        post = simplejson.loads(request.body)
+        email = post.get('email')
+        password = post.get('password')
+        hash = post.get('hash')
+        
+        #check if the hash exists
+        try:
+            hash_object = ForgotPass.objects.get(hash=hash)
+        except ObjectDoesNotExist:
+            return self.create_response(request, {
+                    'success': False,
+                    'message': "Didn't find the change password request",
+                    }, HttpNotFound )
             
-            #get the params
-            post = simplejson.loads(request.body)
-            email = post.get('email')
-            password = post.get('password')
-            hash = post.get('hash')
+        #check if the hash is still valid
+        creation_date = hash_object.creation_date.replace(tzinfo=None)
+        now = datetime.datetime.now().replace(microsecond=0)
+        minus_day = (now - timedelta(days=1))
+        if minus_day > creation_date:
+            return self.create_response(request, {
+                    'success': False,
+                    'message': "Change password request is older than 24 hours",
+                    }, HttpBadRequest )
             
-            #check if the hash exists
-            try:
-                hash_object = ForgotPass.objects.get(hash=hash)
-            except ObjectDoesNotExist:
-                return self.create_response(request, {
-                        'success': False,
-                        'message': "Didn't find the change password request",
-                        }, HttpNotFound )
-                
-            #check if the hash is still valid
-            creation_date = hash_object.creation_date.replace(tzinfo=None)
-            now = datetime.datetime.now().replace(microsecond=0)
-            minus_day = (now - timedelta(days=1))
-            if minus_day > creation_date:
-                return self.create_response(request, {
-                        'success': False,
-                        'message': "Change password request is older than 24 hours",
-                        }, HttpBadRequest )
-                
-            # Delete old password link
-            hash_object.delete()
-            
-            #grab the user and change the password and pass success
-            user = User.objects.get(id=hash_object.user.user_id)
-            if user.email == email:
-                user.set_password(password)
-                user.save()
-                return self.create_response(request, {
-                        'success': True,
-                        'message': "Successfully changed the password",
-                        } )
-            else:
-                return self.create_response(request, {
-                        'success': False,
-                        'message': "Email address don't match",
-                        }, HttpNotFound ) 
+        # Delete old password link
+        hash_object.delete()
+        
+        #grab the user and change the password and pass success
+        user = User.objects.get(id=hash_object.user.user_id)
+        if user.email == email:
+            user.set_password(password)
+            user.save()
+            return self.create_response(request, {
+                    'success': True,
+                    'message': "Successfully changed the password",
+                    } )
+        else:
+            return self.create_response(request, {
+                    'success': False,
+                    'message': "Email address don't match",
+                    }, HttpNotFound ) 
             
             
         
