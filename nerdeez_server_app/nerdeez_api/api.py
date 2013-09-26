@@ -678,7 +678,7 @@ class UtilitiesResource(NerdeezResource):
         
         #send mail to the user
         if is_send_grid():
-            t = get_template('forgot_password_email.html')
+            t = get_template('emails/forgot_password_email.html')
             html = t.render(Context({'hash': hash , 'url': os.environ['CLIENT_SITE_URL'] + '#/reset-password/', 'email': email}))
             text_content = strip_tags(html)
             msg = EmailMultiAlternatives('Nerdeez - Reset password', text_content, settings.FROM_EMAIL_ADDRESS, [email])
