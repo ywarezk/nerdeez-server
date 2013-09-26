@@ -222,7 +222,7 @@ class UtilitiesResource(NerdeezResource):
         
         return self.create_response(request, {
                     'success': True,
-                    'message': None,
+                    'message': 'Successfully sent your message',
                     }, HttpAccepted )
                     
     def login(self, request=None, **kwargs):
