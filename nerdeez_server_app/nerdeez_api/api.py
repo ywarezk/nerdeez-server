@@ -44,6 +44,7 @@ from nerdeez_server_app import settings
 from django_facebook.connect import connect_user
 import fb
 from twython import Twython
+from tastypie.authentication import Authentication
 
 #===============================================================================
 # end imports
@@ -68,10 +69,6 @@ class NerdeezResource(ModelResource):
         ordering = ['title']
         excludes = ['search_index']
         
-
-        
-
-
 #===============================================================================
 # end abstract resources
 #===============================================================================
@@ -122,9 +119,39 @@ def fb_request_decode(signed_request):
 #===============================================================================
 
 #===============================================================================
-# begin the actual rest api
+# begin authorization/authentication
 #===============================================================================
 
+class NerdeezAuthentication(Authentication):
+    def is_authenticated(self, request, **kwargs):
+        '''
+        check to see if the user is authenticated
+        @return: boolean if authenticated
+        '''
+        
+        #get cradentials
+        username = request.session.get('username', '')
+        api_key = request.session.get('api_key', '')
+        
+        #check if the cradentials match
+        try:
+            api_key_object = ApiKey.objects.get(key=api_key)
+        except:
+            return False
+        
+        #if the username match return true else return false
+        if api_key_object.user.username == username:
+            return True
+        else:
+            return False
+
+#===============================================================================
+# end authorization/authentication
+#===============================================================================
+
+#===============================================================================
+# begin the actual rest api
+#===============================================================================
 
 class SchoolGroupResource(NerdeezResource):
     '''
@@ -195,6 +222,9 @@ class UtilitiesResource(NerdeezResource):
             url(r"^(?P<resource_name>%s)/twitter-login-callback%s$" %
                 (self._meta.resource_name, trailing_slash()),
                 self.wrap_view('twitter_login_callback'), name="api_twitter_login_callback"),
+            url(r"^(?P<resource_name>%s)/change-password%s$" %
+                (self._meta.resource_name, trailing_slash()),
+                self.wrap_view('change_password'), name="api_change_password"),
         ]
         
     def contact(self, request=None, **kwargs):
@@ -572,6 +602,46 @@ class UtilitiesResource(NerdeezResource):
                     'is_logged_in': True,
                     'message': 'The user is logged in',
                     })
+        
+    def change_password(self, request=None, **kwargs):
+        '''
+        change the password of the user
+        @param old_password: will get this as post param
+        @param new_password: will get this as post param
+        @return: 401 if unauth or 200 if success  
+        '''
+        
+        #check auth
+        if not NerdeezAuthentication().is_authenticated(request):
+            return self.create_response(request, {
+                    'success': False,
+                    'message': 'You are not authorized to do this',
+                    }, HttpUnauthorized)
+            
+        #get the params
+        post = simplejson.loads(request.body)
+        old_password = post.get('old_password')
+        new_password = post.get('new_password')
+        
+        #check that the old password match
+        user = auth.authenticate(username=request.session.get('username'), password=old_password)
+        if user is None:
+            return self.create_response(request, {
+                    'success': False,
+                    'message': "Old password doesn't match",
+                    }, HttpUnauthorized)
+        
+        #set the new password and return success    
+        user.set_password(new_password)
+        return self.create_response(request, {
+                    'success': True,
+                    'message': "Successfully changed the password.",
+                    })
+        
+        
+        
+        
+        
             
         
         
