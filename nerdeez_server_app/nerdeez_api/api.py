@@ -164,6 +164,9 @@ class SchoolGroupResource(NerdeezResource):
     class Meta(NerdeezResource.Meta):
         allowed_methods = ['get', 'post', 'put']
         queryset = SchoolGroup.objects.all()
+        filtering = {
+                     'school_type': ['exact']
+                     }
         
     def get_object_list(self, request):
         '''
