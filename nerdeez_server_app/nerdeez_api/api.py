@@ -167,7 +167,8 @@ class SchoolGroupResource(NerdeezResource):
         queryset = SchoolGroup.objects.all()
         filtering = {
                      'school_type': ['exact'],
-                     'parent': ALL_WITH_RELATIONS
+                     'parent': ALL_WITH_RELATIONS,
+                     'id': ['exact']
                      }
         
     def get_object_list(self, request):
