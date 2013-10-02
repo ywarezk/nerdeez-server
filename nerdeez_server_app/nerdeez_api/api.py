@@ -47,6 +47,7 @@ from twython import Twython
 from tastypie.authentication import Authentication
 from django.core.exceptions import ObjectDoesNotExist
 from datetime import timedelta
+from tastypie.constants import ALL_WITH_RELATIONS
 
 #===============================================================================
 # end imports
@@ -165,7 +166,8 @@ class SchoolGroupResource(NerdeezResource):
         allowed_methods = ['get', 'post', 'put']
         queryset = SchoolGroup.objects.all()
         filtering = {
-                     'school_type': ['exact']
+                     'school_type': ['exact'],
+                     'parent': ALL_WITH_RELATIONS
                      }
         
     def get_object_list(self, request):
