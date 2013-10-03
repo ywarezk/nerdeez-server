@@ -170,7 +170,7 @@ class SchoolGroupResource(NerdeezResource):
                      'parent': ALL_WITH_RELATIONS,
                      'id': ['exact']
                      }
-        ordering = ['grade']
+        ordering = ['grade', 'title']
         
     def get_object_list(self, request):
         '''
