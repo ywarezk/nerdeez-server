@@ -63,12 +63,19 @@ class ApiTest(ResourceTestCase):
         '''
         test the registration
         '''
-        resp = self.api_client.post('/api/v1/utilities/register/', format='json', data={'email': 'yariv@nerdeez.com', 'password': '12345'})
+        resp = self.api_client.post('/api/v1/utilities/register/', format='json', data={'email': 'yariv@nerdeez2.com', 'password': '12345'})
         self.assertHttpCreated(resp)
         
-        resp = self.api_client.post('/api/v1/utilities/login/', format='json', data={'email': 'yariv@nerdeez.com', 'password': '12345'})
+        resp = self.api_client.post('/api/v1/utilities/login/', format='json', data={'email': 'yariv@nerdeez2.com', 'password': '12345'})
         self.assertHttpAccepted(resp)
         
+    def test_userprofile_schoolgroups(self):
+        '''
+        check the user returns school groups as array
+        '''
+        resp = self.api_client.get('/api/v1/userprofile/1/', format='json', data={})
+        obj = self.deserialize(resp)
+        self.assertEqual(len(obj['school_groups']), 2)
         
         
 

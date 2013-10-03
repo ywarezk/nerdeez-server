@@ -192,6 +192,12 @@ class FlatpageResource(NerdeezResource):
         filtering = {
                      'title': ALL,
                      }
+     
+class UserProfileResource(NerdeezResource):
+    school_groups = fields.ToManyField(SchoolGroupResource, 'school_groups', full=True)
+    class Meta:
+        queryset = UserProfile.objects.all()
+    
 
 class UtilitiesResource(NerdeezResource):
     '''

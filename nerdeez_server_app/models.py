@@ -72,6 +72,7 @@ class UserProfile(NerdeezModel):
     email_hash = models.CharField(max_length=100, blank = True, null = True, default="")
     twitter_oauth_token = models.CharField(max_length=255, blank = True, null = True, default="")
     twitter_oauth_token_secret = models.CharField(max_length=255, blank = True, null = True, default="")
+    school_groups = models.ManyToManyField('SchoolGroup', related_name = "users", through = 'Enroll')
     
     def __unicode__(self):
         '''
@@ -87,6 +88,7 @@ def createHash():
     '''
     pool = string.letters + string.digits
     return ''.join(random.choice(pool) for i in xrange(64))
+
     
 class ForgotPass(NerdeezModel):
     '''
@@ -135,7 +137,15 @@ class Flatpage(NerdeezModel):
 
     def __unicode__(self):
         return self.title
-        
+
+
+class Enroll(NerdeezModel):
+    user = models.ForeignKey(UserProfile)
+    school_group = models.ForeignKey(SchoolGroup)
+    last_entered = models.DateTimeField(default=lambda: datetime.datetime.now().replace(microsecond=0), auto_now=True) 
+    
+    def __unicode__(self):
+        return '%s - %s' %(self.user.user.email, self.school_group.title)      
 
 #===============================================================================
 # end tables - models
