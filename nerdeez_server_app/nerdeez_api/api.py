@@ -198,10 +198,6 @@ class UserProfileResource(NerdeezResource):
     class Meta:
         queryset = UserProfile.objects.all()
         excludes = ['email_hash', 'twitter_oauth_token', 'twitter_oauth_token_secret']
-        
-    def dehydrate(self, bundle):
-        bundle.data['school_groups'] = {"data": bundle.data['school_groups']}
-        return super(UserProfileResource, self).dehydrate(bundle)
     
 
 class UtilitiesResource(NerdeezResource):
