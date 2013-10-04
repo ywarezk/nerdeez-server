@@ -197,7 +197,7 @@ class UserProfileResource(NerdeezResource):
     school_groups = fields.ToManyField(SchoolGroupResource, 'school_groups', full=True)
     class Meta:
         queryset = UserProfile.objects.all()
-        excludes = ['email_hash']
+        excludes = ['email_hash', 'twitter_oauth_token', 'twitter_oauth_token_secret']
     
 
 class UtilitiesResource(NerdeezResource):
