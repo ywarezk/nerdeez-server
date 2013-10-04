@@ -483,6 +483,7 @@ class UtilitiesResource(NerdeezResource):
             return self.create_response(request, {
                     'is_logged_in': True,
                     'message': 'The user is logged in',
+                    'id': user.profile.id
                     })
         else:
             return self.create_response(request, {
