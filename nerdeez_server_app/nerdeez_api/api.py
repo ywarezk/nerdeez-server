@@ -197,6 +197,7 @@ class UserProfileResource(NerdeezResource):
     school_groups = fields.ToManyField(SchoolGroupResource, 'school_groups', full=True)
     class Meta:
         queryset = UserProfile.objects.all()
+        excludes = ['email_hash']
     
 
 class UtilitiesResource(NerdeezResource):
