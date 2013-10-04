@@ -332,7 +332,7 @@ class UtilitiesResource(NerdeezResource):
         return self.create_response(request, {
                     'success': True,
                     'message': 'Successfully logged in',
-                    "user_profile": ur.serialize(None, ur.full_dehydrate(ur_bundle), 'application/json'),
+                    "user_profile": json.loads(ur.serialize(None, ur.full_dehydrate(ur_bundle), 'application/json')),
                     }, HttpAccepted )
                     
     def register(self, request=None, **kwargs):
@@ -489,7 +489,7 @@ class UtilitiesResource(NerdeezResource):
             return self.create_response(request, {
                     'is_logged_in': True,
                     'message': 'The user is logged in',
-                    'user_profile': ur.serialize(None, ur.full_dehydrate(ur_bundle), 'application/json')
+                    'user_profile': json.loads(ur.serialize(None, ur.full_dehydrate(ur_bundle), 'application/json'))
                     })
         else:
             return self.create_response(request, {
