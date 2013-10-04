@@ -326,9 +326,12 @@ class UtilitiesResource(NerdeezResource):
         request.session['api_key'] = api_key.key
         request.session['username'] = user.username
         
+        ur = UserProfileResource()
+        ur_bundle = ur.build_bundle(obj=user.profile, request=request)
         return self.create_response(request, {
                     'success': True,
-                    'message': 'Successfully logged in'
+                    'message': 'Successfully logged in',
+                    "user_profile": ur.serialize(None, ur.full_dehydrate(ur_bundle), 'application/json'),
                     }, HttpAccepted )
                     
     def register(self, request=None, **kwargs):
@@ -479,11 +482,13 @@ class UtilitiesResource(NerdeezResource):
                     })
             
         #verify that the api keys are equal in the session and in the object
+        ur = UserProfileResource()
+        ur_bundle = ur.build_bundle(obj=user.profile, request=request)
         if api_key == api_key_object.key:
             return self.create_response(request, {
                     'is_logged_in': True,
                     'message': 'The user is logged in',
-                    'user_profile': user.profile
+                    'user_profile': ur.serialize(None, ur.full_dehydrate(ur_bundle), 'application/json')
                     })
         else:
             return self.create_response(request, {
