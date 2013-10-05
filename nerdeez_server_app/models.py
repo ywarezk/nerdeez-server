@@ -35,7 +35,7 @@ SCHOOL_TYPES = (
 
 DEFAULT_SCHOOL_TYPE = 1
 
-NUM_ENROLLED_COURSES = 3
+NUM_ENROLLED_COURSES = 10
 
 #===============================================================================
 # end constants
