@@ -30,6 +30,7 @@ v1_api.register(SchoolGroupResource())
 v1_api.register(FlatpageResource())
 v1_api.register(UtilitiesResource())
 v1_api.register(UserProfileResource())
+v1_api.register(EnrollResource())
 
 #register urls
 urlpatterns = patterns('',

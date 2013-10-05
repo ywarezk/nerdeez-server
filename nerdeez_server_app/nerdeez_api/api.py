@@ -44,13 +44,24 @@ from nerdeez_server_app import settings
 from django_facebook.connect import connect_user
 import fb
 from twython import Twython
-from tastypie.authentication import Authentication
+from tastypie.authentication import Authentication,ApiKeyAuthentication
 from django.core.exceptions import ObjectDoesNotExist
 from datetime import timedelta
 from tastypie.constants import ALL_WITH_RELATIONS
+from django.core.urlresolvers import resolve, get_script_prefix
 
 #===============================================================================
 # end imports
+#===============================================================================
+
+#===============================================================================
+# begin constants
+#===============================================================================
+
+API_URL = '/api/v1/'
+
+#===============================================================================
+# end constants
 #===============================================================================
 
 
@@ -116,6 +127,27 @@ def fb_request_decode(signed_request):
         'sig_match' : sig_match,
         'auth' : auth,
     }
+    
+
+def get_pk_from_uri(uri):
+    '''
+    gets a uri and return the pk from the url
+    @param uri: the url
+    @return: string the pk 
+    '''
+    
+    prefix = get_script_prefix()
+    chomped_uri = uri
+
+    if prefix and chomped_uri.startswith(prefix):
+        chomped_uri = chomped_uri[len(prefix)-1:]
+
+    try:
+        view, args, kwargs = resolve(chomped_uri)
+    except:
+        return 0
+
+    return kwargs['pk']
 
 #===============================================================================
 # end global function
@@ -125,28 +157,41 @@ def fb_request_decode(signed_request):
 # begin authorization/authentication
 #===============================================================================
 
-class NerdeezAuthentication(Authentication):
-    def is_authenticated(self, request, **kwargs):
-        '''
-        check to see if the user is authenticated
-        @return: boolean if authenticated
-        '''
-        
-        #get cradentials
+class NerdeezAuthentication(ApiKeyAuthentication):
+    def extract_credentials(self, request):
         username = request.session.get('username', '')
         api_key = request.session.get('api_key', '')
+        if username == '':
+            username = request.GET.get('username');
+        if api_key == '':
+            api_key = request.GET.get('api_key');
+        return username, api_key
         
-        #check if the cradentials match
-        try:
-            api_key_object = ApiKey.objects.get(key=api_key)
-        except:
-            return False
-        
-        #if the username match return true else return false
-        if api_key_object.user.username == username:
-            return True
-        else:
-            return False
+#     def is_authenticated(self, request, **kwargs):
+#         '''
+#         check to see if the user is authenticated
+#         @return: boolean if authenticated
+#         '''
+#         
+#         #get cradentials
+#         username = request.session.get('username', '')
+#         api_key = request.session.get('api_key', '')
+#         if username == '':
+#             username = request.GET.get('username');
+#         if api_key == '':
+#             api_key = request.GET.get('api_key');
+#         
+#         #check if the cradentials match
+#         try:
+#             api_key_object = ApiKey.objects.get(key=api_key)
+#         except:
+#             return False
+#         
+#         #if the username match return true else return false
+#         if api_key_object.user.username == username:
+#             return True
+#         else:
+#             return False
 
 #===============================================================================
 # end authorization/authentication
@@ -198,8 +243,35 @@ class UserProfileResource(NerdeezResource):
     class Meta:
         queryset = UserProfile.objects.all()
         excludes = ['email_hash', 'twitter_oauth_token', 'twitter_oauth_token_secret']
+        
+class EnrollResource(NerdeezResource):
+    user = fields.ToOneField(UserProfileResource, 'user', full=True, null=True)
+    school_group = fields.ToOneField(SchoolGroupResource, 'school_group', full=True, null=True)
+    class Meta:
+        queryset = Enroll.objects.all()
+        authentication = NerdeezAuthentication()
+        allwed_methods = ['post']
+        
+    def obj_create(self, bundle, **kwargs):
+        '''
+        if the enrollment exist then modify the last entered
+        else then create a new enrollment
+        '''
+        bundle.data['user'] = API_URL + 'userprofile/' + str(bundle.request.user.profile.id) + '/'
+        schoolgroup_id = get_pk_from_uri(bundle.data['school_group'])
+        try:
+            enroll = Enroll.objects.get(user=bundle.request.user.profile,school_group__id=schoolgroup_id)
+        except:
+            return super(EnrollResource, self).obj_create(bundle, **kwargs)
+        enroll.last_entered = datetime.datetime.now().replace(microsecond=0)
+        enroll.save()
+        bundle.obj = enroll
+        return bundle
+            
+        
+        
     
-
+        
 class UtilitiesResource(NerdeezResource):
     '''
     the api for things that are not attached to models: 
@@ -322,6 +394,8 @@ class UtilitiesResource(NerdeezResource):
         #if the user set the remeber me then the sessions should expire in 1 week
         if remember_me:
             request.session.set_expiry(60*60*24*7)
+        else:
+            request.session.set_expiry(60*60*24)
                 
         #store cradentials in session
         request.session['api_key'] = api_key.key

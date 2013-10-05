@@ -12,6 +12,7 @@ Created on Jun 29, 2013
 #===============================================================================
 
 from tastypie.test import ResourceTestCase
+from nerdeez_server_app.models import Enroll
 
 #===============================================================================
 # end imports
@@ -76,6 +77,24 @@ class ApiTest(ResourceTestCase):
         resp = self.api_client.get('/api/v1/userprofile/1/', format='json', data={})
         obj = self.deserialize(resp)
         self.assertEqual(len(obj['school_groups']), 2)
+        
+    def test_enroll(self):
+        '''
+        check the enroll api
+        '''
+        
+        #test auth
+        resp = self.api_client.post(uri='/api/v1/enroll/', format='json', data={'user': '/api/v1/userprofile/3/', 'school_group': '/api/v1/schoolgroup/1/'})
+        self.assertHttpUnauthorized(resp)
+        
+        #
+        resp = self.api_client.post(uri='/api/v1/enroll/?username=1234&api_key=12345678', format='json', data={'user': '/api/v1/userprofile/3/', 'school_group': '/api/v1/schoolgroup/1/'})
+        self.assertHttpCreated(resp)
+        self.assertEqual(Enroll.objects.count(), 2)
+        resp = self.api_client.post(uri='/api/v1/enroll/?username=1234&api_key=12345678', format='json', data={'user': '/api/v1/userprofile/3/', 'school_group': '/api/v1/schoolgroup/1/'})
+        self.assertHttpCreated(resp)
+        self.assertEqual(Enroll.objects.count(), 2)
+        
         
         
 

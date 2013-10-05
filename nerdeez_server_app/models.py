@@ -142,10 +142,15 @@ class Flatpage(NerdeezModel):
 class Enroll(NerdeezModel):
     user = models.ForeignKey(UserProfile)
     school_group = models.ForeignKey(SchoolGroup)
-    last_entered = models.DateTimeField(default=lambda: datetime.datetime.now().replace(microsecond=0), auto_now=True) 
+    last_entered = models.DateTimeField(default=lambda: datetime.datetime.now().replace(microsecond=0), auto_now=True)
+    
+    class Meta:
+        unique_together = (("user", "school_group"),) 
     
     def __unicode__(self):
-        return '%s - %s' %(self.user.user.email, self.school_group.title)      
+        return '%s - %s' %(self.user.user.email, self.school_group.title)
+    
+          
 
 #===============================================================================
 # end tables - models

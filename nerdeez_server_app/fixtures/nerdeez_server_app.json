@@ -55,7 +55,7 @@
     "pk": 1, 
     "model": "auth.user", 
     "fields": {
-        "username": "ywarezk", 
+        "username": "1", 
         "first_name": "", 
         "last_name": "", 
         "is_active": true, 
@@ -73,7 +73,7 @@
     "pk": 2, 
     "model": "auth.user", 
     "fields": {
-        "username": "2abc6a3035c1c603f47a4443d750e4", 
+        "username": "12", 
         "first_name": "", 
         "last_name": "", 
         "is_active": true, 
@@ -91,7 +91,7 @@
     "pk": 3, 
     "model": "auth.user", 
     "fields": {
-        "username": "2d10966270003924dafdf94a279cf3", 
+        "username": "123", 
         "first_name": "", 
         "last_name": "", 
         "is_active": true, 
@@ -109,7 +109,7 @@
     "pk": 4, 
     "model": "auth.user", 
     "fields": {
-        "username": "0ef7f7f8382a2a81bde51342b69d24", 
+        "username": "1234", 
         "first_name": "", 
         "last_name": "", 
         "is_active": true, 
@@ -127,7 +127,7 @@
     "pk": 5, 
     "model": "auth.user", 
     "fields": {
-        "username": "c90b96d05638598370fd0eedd9c4bb", 
+        "username": "ywarezk", 
         "first_name": "", 
         "last_name": "", 
         "is_active": true, 
@@ -173,7 +173,7 @@
         "modified_data": "2013-09-26T06:37:37.596Z", 
         "creation_date": "2013-09-26T06:37:37Z", 
         "twitter_oauth_token": "571540045-KQjgPk2Xat5XoHyos8JEGutJXCXbB9ym1neNVByb", 
-        "user": 2, 
+        "user": 5, 
         "twitter_oauth_token_secret": "IbJVHDpM9nWseFANQdMrUpnVci93ersHAr6u0"
     }
 },
@@ -195,6 +195,51 @@
         "school_group": 2, 
         "modified_data": "2013-10-03T17:16:28.976Z", 
         "creation_date": "2013-10-03T17:16:20Z"
+    }
+},
+{
+    "pk": 1, 
+    "model": "tastypie.apikey", 
+    "fields": {
+        "user": 1, 
+        "key": "12345678", 
+        "created": "2013-09-25T18:18:52.905Z"
+    }
+},
+{
+    "pk": 2, 
+    "model": "tastypie.apikey", 
+    "fields": {
+        "user": 2, 
+        "key": "12345678", 
+        "created": "2013-09-26T06:36:43.841Z"
+    }
+},
+{
+    "pk": 3, 
+    "model": "tastypie.apikey", 
+    "fields": {
+        "user": 3, 
+        "key": "12345678", 
+        "created": "2013-09-26T06:41:34.556Z"
+    }
+},
+{
+    "pk": 4, 
+    "model": "tastypie.apikey", 
+    "fields": {
+        "user": 4, 
+        "key": "12345678", 
+        "created": "2013-09-26T09:30:54.305Z"
+    }
+},
+{
+    "pk": 5, 
+    "model": "tastypie.apikey", 
+    "fields": {
+        "user": 5, 
+        "key": "12345678", 
+        "created": "2013-09-26T14:34:44.389Z"
     }
 }
 ]
