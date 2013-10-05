@@ -49,6 +49,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from datetime import timedelta
 from tastypie.constants import ALL_WITH_RELATIONS
 from django.core.urlresolvers import resolve, get_script_prefix
+import nerdeez_server_app
 
 #===============================================================================
 # end imports
@@ -239,20 +240,23 @@ class FlatpageResource(NerdeezResource):
                      }
      
 class UserProfileResource(NerdeezResource):
-    school_groups = fields.ToManyField(SchoolGroupResource, 'school_groups', full=True)
+#     school_groups = fields.ToManyField(SchoolGroupResource, 'school_groups', full=True)
+    enrolls = fields.ToManyField('nerdeez_server_app.nerdeez_api.api.EnrollResource', 'enrolls', full=True)
+    
     class Meta:
         queryset = UserProfile.objects.all()
         excludes = ['email_hash', 'twitter_oauth_token', 'twitter_oauth_token_secret']
+        ordering = ['enrolls']
+        
         
 class EnrollResource(NerdeezResource):
-    user = fields.ToOneField(UserProfileResource, 'user', full=True, null=True)
+    user = fields.ToOneField(UserProfileResource, 'user')
     school_group = fields.ToOneField(SchoolGroupResource, 'school_group', full=True, null=True)
     class Meta:
         queryset = Enroll.objects.all()
         authentication = NerdeezAuthentication()
         authorization = Authorization()
         allwed_methods = ['post']
-        ordering = ['last_entered']
         
     def obj_create(self, bundle, **kwargs):
         '''

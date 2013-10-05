@@ -76,7 +76,7 @@ class ApiTest(ResourceTestCase):
         '''
         resp = self.api_client.get('/api/v1/userprofile/1/', format='json', data={})
         obj = self.deserialize(resp)
-        self.assertEqual(len(obj['school_groups']), 2)
+        self.assertEqual(len(obj['enrolls']), 2)
         
     def test_enroll(self):
         '''
