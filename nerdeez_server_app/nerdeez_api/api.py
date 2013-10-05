@@ -250,7 +250,9 @@ class EnrollResource(NerdeezResource):
     class Meta:
         queryset = Enroll.objects.all()
         authentication = NerdeezAuthentication()
+        authorization = Authorization()
         allwed_methods = ['post']
+        ordering = ['last_entered']
         
     def obj_create(self, bundle, **kwargs):
         '''

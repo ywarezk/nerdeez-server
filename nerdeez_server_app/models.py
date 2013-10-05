@@ -35,6 +35,8 @@ SCHOOL_TYPES = (
 
 DEFAULT_SCHOOL_TYPE = 1
 
+NUM_ENROLLED_COURSES = 3
+
 #===============================================================================
 # end constants
 #===============================================================================
@@ -145,10 +147,24 @@ class Enroll(NerdeezModel):
     last_entered = models.DateTimeField(default=lambda: datetime.datetime.now().replace(microsecond=0))
     
     class Meta:
+        ordering = ['last_entered']
         unique_together = (("user", "school_group"),) 
     
     def __unicode__(self):
         return '%s - %s' %(self.user.user.email, self.school_group.title)
+    
+    def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
+        '''
+        if i have more than ten for the user then need to delete some records
+        '''
+        result = super(Enroll, self).save(force_insert=force_insert, force_update=force_update, using=using, update_fields=update_fields)
+        num_records = Enroll.objects.filter(user=self.user).count()
+        if num_records > NUM_ENROLLED_COURSES:
+            records = Enroll.objects.filter(user=self.user).order_by('last_entered')
+            for i in range(0,num_records-NUM_ENROLLED_COURSES):
+                records[i].delete()
+                    
+        return result
     
           
 
