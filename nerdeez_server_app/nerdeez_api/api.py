@@ -291,7 +291,7 @@ class FileResource(NerdeezResource):
     
     class Meta:
         queryset = Hw.objects.all()
-        allowed_methods = ['post', 'get']
+        allowed_methods = ['post', 'get', 'put']
         authentication = NerdeezAuthentication()
         authorization = Authorization()
             

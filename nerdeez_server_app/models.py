@@ -175,7 +175,7 @@ class Hw(NerdeezModel):
 class File(NerdeezModel):
     title = models.CharField(max_length=250, blank=False, null=False)
     grade = models.DecimalField(max_digits = 3, decimal_places = 1, default = Decimal("3.5"))
-    hw = models.ForeignKey(Hw, related_name='files')
+    hw = models.ForeignKey(Hw, related_name='files', default=None, blank=True, null=True)
     file = models.FileField(upload_to='files', blank=True, null=True)
     size = models.FloatField(default=0)
     hash = models.CharField(max_length=1000, blank=True, null=True)
