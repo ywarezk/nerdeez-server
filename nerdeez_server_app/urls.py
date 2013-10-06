@@ -31,6 +31,8 @@ v1_api.register(FlatpageResource())
 v1_api.register(UtilitiesResource())
 v1_api.register(UserProfileResource())
 v1_api.register(EnrollResource())
+v1_api.register(HwResource())
+v1_api.register(FileResource())
 
 #register urls
 urlpatterns = patterns('',

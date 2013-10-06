@@ -58,6 +58,9 @@ class NerdeezModel(models.Model):
     class Meta:
         abstract = True
         
+    def __unicode__(self):
+        return self.title
+        
 #===============================================================================
 # end models abstract classes
 #===============================================================================
@@ -112,9 +115,6 @@ class SchoolGroup(NerdeezModel):
     school_type = models.IntegerField(choices = SCHOOL_TYPES, default = DEFAULT_SCHOOL_TYPE, blank=False, null=False)
     grade = models.DecimalField(max_digits = 3, decimal_places = 1, default = Decimal("3.5"))
     
-    def __unicode__(self):
-        return self.title
-    
     @classmethod
     def search(cls, query):
         '''
@@ -136,9 +136,6 @@ class Flatpage(NerdeezModel):
     '''
     title = models.CharField(max_length=250, blank=False, null=False, unique=True)
     html = models.TextField(blank=True, null=True)
-
-    def __unicode__(self):
-        return self.title
 
 
 class Enroll(NerdeezModel):
@@ -165,6 +162,26 @@ class Enroll(NerdeezModel):
                 records[i].delete()
                     
         return result
+    
+class Hw(NerdeezModel):
+    title = models.CharField(max_length=250, blank=False, null=False)
+    description = models.CharField(max_length=250, blank=True, null=False, default="")
+    grade = models.DecimalField(max_digits = 3, decimal_places = 1, default = Decimal("3.5"))
+    school_group = models.ForeignKey(SchoolGroup, related_name='hws')
+    
+    class Meta:
+        ordering = ['title']
+        unique_together = (("title", "school_group"),)
+        
+class File(NerdeezModel):
+    title = models.CharField(max_length=250, blank=False, null=False)
+    grade = models.DecimalField(max_digits = 3, decimal_places = 1, default = Decimal("3.5"))
+    hw = models.ForeignKey(SchoolGroup, related_name='files')
+    file = models.FileField(upload_to='files', blank=True, null=True)
+    
+    class Meta:
+        ordering = ['title']
+        unique_together = (("title", "hw"),)
     
           
 

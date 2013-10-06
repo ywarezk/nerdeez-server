@@ -208,6 +208,7 @@ class SchoolGroupResource(NerdeezResource):
     '''
     
     parent =  fields.ToOneField('self', 'parent', full=True, null=True)
+    hws = fields.ToManyField('nerdeez_server_app.nerdeez_api.api.HwResource', 'hws', full=True, null=True)
     class Meta(NerdeezResource.Meta):
         allowed_methods = ['get', 'post', 'put']
         queryset = SchoolGroup.objects.all()
@@ -273,6 +274,21 @@ class EnrollResource(NerdeezResource):
         enroll.save()
         bundle.obj = enroll
         return bundle
+    
+class HwResource(NerdeezResource):
+    school_group = fields.ToOneField(SchoolGroupResource, 'school_group')
+    files = fields.ToManyField('nerdeez_server_app.nerdeez_api.api.FileResource', 'files', full=True, null=True)
+    
+    class Meta:
+        queryset = Hw.objects.all()
+        allowed_methods = ['post', 'get']
+        
+class FileResource(NerdeezResource):
+    hw = fields.ToOneField(HwResource, 'hw')
+    
+    class Meta:
+        queryset = Hw.objects.all()
+        allowed_methods = ['post', 'get']
             
         
         

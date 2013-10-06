@@ -34,6 +34,12 @@ class UserProfileAdmin(admin.ModelAdmin):
 class EnrollAdmin(admin.ModelAdmin):
     pass
 
+class HwAdmin(admin.ModelAdmin):
+    pass
+
+class FileAdmin(admin.ModelAdmin):
+    pass
+
 
 #===============================================================================
 # end admin models
@@ -47,6 +53,8 @@ admin.site.register(SchoolGroup, SchoolGroupAdmin)
 admin.site.register(Flatpage, FlatpageAdmin)
 admin.site.register(UserProfile, UserProfileAdmin)
 admin.site.register(Enroll, EnrollAdmin)
+admin.site.register(Hw, HwAdmin)
+admin.site.register(File, FileAdmin)
 
 
 #===============================================================================
