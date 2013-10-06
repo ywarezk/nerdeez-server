@@ -171,13 +171,13 @@ class Hw(NerdeezModel):
     
     class Meta:
         ordering = ['title']
-        unique_together = (("title", "school_group"),)
         
 class File(NerdeezModel):
     title = models.CharField(max_length=250, blank=False, null=False)
     grade = models.DecimalField(max_digits = 3, decimal_places = 1, default = Decimal("3.5"))
     hw = models.ForeignKey(SchoolGroup, related_name='files')
     file = models.FileField(upload_to='files', blank=True, null=True)
+    size = models.FloatField(default=0)
     
     class Meta:
         ordering = ['title']

@@ -282,6 +282,9 @@ class HwResource(NerdeezResource):
     class Meta:
         queryset = Hw.objects.all()
         allowed_methods = ['post', 'get']
+        authentication = NerdeezAuthentication()
+        authorization = Authorization()
+        
         
 class FileResource(NerdeezResource):
     hw = fields.ToOneField(HwResource, 'hw')
@@ -289,6 +292,8 @@ class FileResource(NerdeezResource):
     class Meta:
         queryset = Hw.objects.all()
         allowed_methods = ['post', 'get']
+        authentication = NerdeezAuthentication()
+        authorization = Authorization()
             
         
         
