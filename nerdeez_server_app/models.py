@@ -178,6 +178,7 @@ class File(NerdeezModel):
     hw = models.ForeignKey(SchoolGroup, related_name='files')
     file = models.FileField(upload_to='files', blank=True, null=True)
     size = models.FloatField(default=0)
+    hash = models.CharField(max_length=1000, blank=True, null=True)
     
     class Meta:
         ordering = ['title']
