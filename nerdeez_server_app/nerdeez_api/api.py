@@ -290,7 +290,7 @@ class FileResource(NerdeezResource):
     hw = fields.ToOneField(HwResource, 'hw', null=True)
     
     class Meta:
-        queryset = Hw.objects.all()
+        queryset = File.objects.all()
         allowed_methods = ['post', 'get', 'put']
         authentication = NerdeezAuthentication()
         authorization = Authorization()
