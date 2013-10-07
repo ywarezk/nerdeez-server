@@ -244,7 +244,7 @@ class UserProfileResource(NerdeezResource):
 #     school_groups = fields.ToManyField(SchoolGroupResource, 'school_groups', full=True)
     enrolls = fields.ToManyField('nerdeez_server_app.nerdeez_api.api.EnrollResource', 'enrolls', full=True)
     
-    class Meta:
+    class Meta(NerdeezResource.Meta):
         queryset = UserProfile.objects.all()
         excludes = ['email_hash', 'twitter_oauth_token', 'twitter_oauth_token_secret']
         ordering = ['enrolls']
@@ -253,7 +253,7 @@ class UserProfileResource(NerdeezResource):
 class EnrollResource(NerdeezResource):
     user = fields.ToOneField(UserProfileResource, 'user')
     school_group = fields.ToOneField(SchoolGroupResource, 'school_group', full=True, null=True)
-    class Meta:
+    class Meta(NerdeezResource.Meta):
         queryset = Enroll.objects.all()
         authentication = NerdeezAuthentication()
         authorization = Authorization()
@@ -279,7 +279,7 @@ class HwResource(NerdeezResource):
     school_group = fields.ToOneField(SchoolGroupResource, 'school_group')
     files = fields.ToManyField('nerdeez_server_app.nerdeez_api.api.FileResource', 'files', full=True, null=True)
     
-    class Meta:
+    class Meta(NerdeezResource.Meta):
         queryset = Hw.objects.all()
         allowed_methods = ['post', 'get']
         authentication = NerdeezAuthentication()
@@ -289,7 +289,7 @@ class HwResource(NerdeezResource):
 class FileResource(NerdeezResource):
     hw = fields.ToOneField(HwResource, 'hw', null=True)
     
-    class Meta:
+    class Meta(NerdeezResource.Meta):
         queryset = File.objects.all()
         allowed_methods = ['post', 'get', 'put']
         authentication = NerdeezAuthentication()
