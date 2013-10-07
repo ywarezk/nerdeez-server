@@ -257,7 +257,7 @@ class EnrollResource(NerdeezResource):
         queryset = Enroll.objects.all()
         authentication = NerdeezAuthentication()
         authorization = Authorization()
-        allwed_methods = ['post']
+        allwed_methods = ['post', 'get']
         
     def obj_create(self, bundle, **kwargs):
         '''
