@@ -473,10 +473,10 @@ class UtilitiesResource(NerdeezResource):
         api_key.save()
 
         #if the user set the remeber me then the sessions should expire in 1 week
-        if remember_me:
-            request.session.set_expiry(60*60*24*7)
-        else:
-            request.session.set_expiry(60*60*24)
+#         if remember_me:
+#             request.session.set_expiry(60*60*24*7)
+#         else:
+#             request.session.set_expiry(60*60*24)
                 
         #store cradentials in session
 #         request.session['api_key'] = api_key.key
