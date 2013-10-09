@@ -74,7 +74,7 @@ class ApiTest(ResourceTestCase):
         '''
         check the user returns school groups as array
         '''
-        resp = self.api_client.get('/api/v1/userprofile/1/', format='json', data={})
+        resp = self.api_client.get('/api/v1/userprofile/1/?username=1234&api_key=12345678', format='json', data={})
         obj = self.deserialize(resp)
         self.assertEqual(len(obj['enrolls']), 2)
         
@@ -94,6 +94,31 @@ class ApiTest(ResourceTestCase):
         resp = self.api_client.post(uri='/api/v1/enroll/?username=1234&api_key=12345678', format='json', data={'user': '/api/v1/userprofile/3/', 'school_group': '/api/v1/schoolgroup/1/'})
         self.assertHttpCreated(resp)
         self.assertEqual(Enroll.objects.count(), 2)
+        
+    def test_auth(self):
+        '''
+        test my auth
+        '''
+        
+        #check that i can get the school group but i cant post
+        resp = self.api_client.get(uri='/api/v1/schoolgroup/', format='json', data={})
+        self.assertHttpOK(resp)
+        resp = self.api_client.post(uri='/api/v1/schoolgroup/', format='json', data={'title': '1', 'description': '2'})
+        self.assertHttpUnauthorized(resp)
+        resp = self.api_client.post(uri='/api/v1/schoolgroup/?username=1234&api_key=12345678', format='json', data={'title': '1', 'description': '2'})
+        self.assertHttpCreated(resp)
+        
+        #i can only read my own profile
+        resp = self.api_client.get(uri='/api/v1/userprofile/', format='json', data={})
+        self.assertHttpUnauthorized(resp)
+        resp = self.api_client.get(uri='/api/v1/userprofile/?username=1234&api_key=12345678', format='json')
+        self.assertHttpOK(resp)
+        self.assertEqual(len(self.deserialize(resp)['objects']), 1)
+        resp = self.api_client.get(uri='/api/v1/userprofile/1/?username=1234&api_key=12345678', format='json')
+        self.assertHttpOK(resp)
+        resp = self.api_client.get(uri='/api/v1/userprofile/2/?username=1234&api_key=12345678', format='json')
+        self.assertHttpUnauthorized(resp)
+    
         
         
         

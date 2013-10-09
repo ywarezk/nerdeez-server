@@ -86,6 +86,9 @@ class UserProfile(NerdeezModel):
         '''
         return self.user.email
     
+    def owner(self):
+        return self.user
+    
 def createHash():
     '''
     will return a random hash
@@ -162,6 +165,9 @@ class Enroll(NerdeezModel):
                 records[i].delete()
                     
         return result
+    
+    def owner(self):
+        return self.user.user
     
 class Hw(NerdeezModel):
     title = models.CharField(max_length=250, blank=False, null=False)

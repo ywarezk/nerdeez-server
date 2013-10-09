@@ -13,8 +13,8 @@ Created on Jun 20, 2013
 
 from tastypie.resources import ModelResource, ALL
 from tastypie import fields
-from tastypie.authorization import Authorization
-from tastypie.authentication import Authentication
+from tastypie.authorization import Authorization, DjangoAuthorization
+from tastypie.authentication import Authentication,ApiKeyAuthentication
 from nerdeez_server_app.models import *
 from django.contrib.auth.models import User
 import os
@@ -44,12 +44,12 @@ from nerdeez_server_app import settings
 from django_facebook.connect import connect_user
 import fb
 from twython import Twython
-from tastypie.authentication import Authentication,ApiKeyAuthentication
 from django.core.exceptions import ObjectDoesNotExist
 from datetime import timedelta
 from tastypie.constants import ALL_WITH_RELATIONS
 from django.core.urlresolvers import resolve, get_script_prefix
 import nerdeez_server_app
+from tastypie.exceptions import Unauthorized
 
 #===============================================================================
 # end imports
@@ -79,8 +79,8 @@ class NerdeezResource(ModelResource):
     class Meta:
         allowed_methods = ['get']
         always_return_data = True
-        authentication = Authentication()
-        authorization = Authorization()
+#         authentication = Authentication()
+#         authorization = Authorization()
         ordering = ['title']
         excludes = ['search_index']
         
@@ -158,41 +158,91 @@ def get_pk_from_uri(uri):
 # begin authorization/authentication
 #===============================================================================
 
-class NerdeezAuthentication(ApiKeyAuthentication):
+class NerdeezApiKeyAuthentication(ApiKeyAuthentication):
     def extract_credentials(self, request):
-        username = request.session.get('username', '')
-        api_key = request.session.get('api_key', '')
-        if username == '':
-            username = request.GET.get('username');
-        if api_key == '':
-            api_key = request.GET.get('api_key');
+        username, api_key = super(NerdeezApiKeyAuthentication, self).extract_credentials(request)
+        if username == None and api_key == None and request.method == 'POST':
+            post = simplejson.loads(request.body)
+            username = post.get('username')
+            api_key = post.get('api_key')
         return username, api_key
+            
+
+class NerdeezReadForFreeAuthentication(NerdeezApiKeyAuthentication):
+    
+    def is_authenticated(self, request, **kwargs):
+        '''
+        get is allowed without cradentials and all other actions require api key and username
+        @return: boolean if authenticated
+        '''
+        if request.method == 'GET':
+            return True
+        return super( NerdeezReadForFreeAuthentication, self ).is_authenticated( request, **kwargs )
         
-#     def is_authenticated(self, request, **kwargs):
-#         '''
-#         check to see if the user is authenticated
-#         @return: boolean if authenticated
-#         '''
-#         
-#         #get cradentials
-#         username = request.session.get('username', '')
-#         api_key = request.session.get('api_key', '')
-#         if username == '':
-#             username = request.GET.get('username');
-#         if api_key == '':
-#             api_key = request.GET.get('api_key');
-#         
-#         #check if the cradentials match
-#         try:
-#             api_key_object = ApiKey.objects.get(key=api_key)
-#         except:
-#             return False
-#         
-#         #if the username match return true else return false
-#         if api_key_object.user.username == username:
-#             return True
-#         else:
-#             return False
+class NerdeezReadForFreeAuthorization( DjangoAuthorization ):
+    '''
+    Authorizes every authenticated user to perform GET, 
+    it will allow post to everyone
+    and put/delete if there is owner only he can do it.
+    '''
+
+    def read_list(self, object_list, bundle):
+        return object_list
+    
+    def read_detail(self, object_list, bundle):
+        return True
+    
+    def create_detail(self, object_list, bundle):
+        return True
+    
+    def create_list(self, object_list, bundle):
+        return object_list
+        
+        
+    def update_detail(self, object_list, bundle):
+        return len(object_list) > 0
+    
+    def update_list(self, object_list, bundle):
+        if bundle.request == None:
+            raise Unauthorized("You are not allowed to access that resource.")
+        
+        objects = []
+        for obj in object_list:
+            if hasattr(obj, 'owner') and (obj.owner() == bundle.request.user.username):
+                objects.append(obj)
+            if not hasattr(obj, 'owner'):
+                objects.append(obj)
+        return objects
+    
+    def delete_list(self, object_list, bundle):
+        return self.update_list(object_list, bundle)
+    
+    def delete_detail(self, object_list, bundle):
+        return self.delete_detail(object_list, bundle)
+    
+        
+    
+        
+class NerdeezOnlyOwnerCanReadAuthorization( NerdeezReadForFreeAuthorization ):
+    '''
+    Authorizes every authenticated user to perform GET, for all others
+    performs NerdeezReadForFreeAuthorization.
+    '''
+    
+    def read_list(self, object_list, bundle):
+        list = []
+        for obj in object_list:
+            if not hasattr(obj, 'owner'):
+                list.append(obj)
+            if hasattr(obj, 'owner') and obj.owner() == bundle.request.user:
+                list.append(obj)
+                
+        return list
+    
+    def read_detail(self, object_list, bundle):
+        return len(self.read_list(object_list, bundle)) > 0
+
+        
 
 #===============================================================================
 # end authorization/authentication
@@ -210,7 +260,7 @@ class SchoolGroupResource(NerdeezResource):
     parent =  fields.ToOneField('self', 'parent', full=True, null=True)
     hws = fields.ToManyField('nerdeez_server_app.nerdeez_api.api.HwResource', 'hws', full=True, null=True)
     class Meta(NerdeezResource.Meta):
-        allowed_methods = ['get', 'post', 'put']
+        allowed_methods = ['get', 'post']
         queryset = SchoolGroup.objects.all()
         filtering = {
                      'school_type': ['exact'],
@@ -218,6 +268,8 @@ class SchoolGroupResource(NerdeezResource):
                      'id': ['exact']
                      }
         ordering = ['grade', 'title']
+        authentication = NerdeezReadForFreeAuthentication()
+        authorization = NerdeezReadForFreeAuthorization()
         
     def get_object_list(self, request):
         '''
@@ -248,6 +300,8 @@ class UserProfileResource(NerdeezResource):
         queryset = UserProfile.objects.all()
         excludes = ['email_hash', 'twitter_oauth_token', 'twitter_oauth_token_secret']
         ordering = ['enrolls']
+        authentication = NerdeezApiKeyAuthentication()
+        authorization = NerdeezOnlyOwnerCanReadAuthorization()
         
         
 class EnrollResource(NerdeezResource):
@@ -255,8 +309,8 @@ class EnrollResource(NerdeezResource):
     school_group = fields.ToOneField(SchoolGroupResource, 'school_group', full=True, null=True)
     class Meta(NerdeezResource.Meta):
         queryset = Enroll.objects.all()
-        authentication = NerdeezAuthentication()
-        authorization = Authorization()
+        authentication = NerdeezApiKeyAuthentication()
+        authorization = NerdeezOnlyOwnerCanReadAuthorization()
         allowed_methods = ['post', 'get']
         
     def obj_create(self, bundle, **kwargs):
@@ -282,8 +336,8 @@ class HwResource(NerdeezResource):
     class Meta(NerdeezResource.Meta):
         queryset = Hw.objects.all()
         allowed_methods = ['post', 'get']
-        authentication = NerdeezAuthentication()
-        authorization = Authorization()
+        authentication = NerdeezApiKeyAuthentication()
+        authorization = DjangoAuthorization()
         
         
 class FileResource(NerdeezResource):
@@ -292,8 +346,8 @@ class FileResource(NerdeezResource):
     class Meta(NerdeezResource.Meta):
         queryset = File.objects.all()
         allowed_methods = ['post', 'get', 'put']
-        authentication = NerdeezAuthentication()
-        authorization = Authorization()
+        authentication = NerdeezApiKeyAuthentication()
+        authorization = DjangoAuthorization()
             
         
         
@@ -425,8 +479,8 @@ class UtilitiesResource(NerdeezResource):
             request.session.set_expiry(60*60*24)
                 
         #store cradentials in session
-        request.session['api_key'] = api_key.key
-        request.session['username'] = user.username
+#         request.session['api_key'] = api_key.key
+#         request.session['username'] = user.username
         
         ur = UserProfileResource()
         ur_bundle = ur.build_bundle(obj=user.profile, request=request)
@@ -434,6 +488,8 @@ class UtilitiesResource(NerdeezResource):
                     'success': True,
                     'message': 'Successfully logged in',
                     "user_profile": json.loads(ur.serialize(None, ur.full_dehydrate(ur_bundle), 'application/json')),
+                    'api_key': api_key.key,
+                    'username': user.username
                     }, HttpAccepted )
                     
     def register(self, request=None, **kwargs):
@@ -556,64 +612,64 @@ class UtilitiesResource(NerdeezResource):
                     'message': 'Email verification failed',
                     }, HttpBadRequest )
             
-    def is_login(self, request=None, **kwargs):
-        '''
-        check to see if the user is logged in
-        '''
-        
-        #get the api key and the username from the session
-        api_key = request.session.get('api_key', '')
-        username = request.session.get('username', '')
-        
-        #find the user with that username
-        try:
-            user = User.objects.get(username=username)
-        except:
-            return self.create_response(request, {
-                    'is_logged_in': False,
-                    'message': 'The user is not logged in',
-                    })
+#     def is_login(self, request=None, **kwargs):
+#         '''
+#         check to see if the user is logged in
+#         '''
+#         
+#         #get the api key and the username from the session
+#         api_key = request.session.get('api_key', '')
+#         username = request.session.get('username', '')
+#         
+#         #find the user with that username
+#         try:
+#             user = User.objects.get(username=username)
+#         except:
+#             return self.create_response(request, {
+#                     'is_logged_in': False,
+#                     'message': 'The user is not logged in',
+#                     })
+#             
+#         #find the api key object of the user
+#         try:
+#             api_key_object = ApiKey.objects.get(user=user)
+#         except:
+#             return self.create_response(request, {
+#                     'is_logged_in': False,
+#                     'message': 'The user is not logged in',
+#                     })
+#             
+#         #verify that the api keys are equal in the session and in the object
+#         ur = UserProfileResource()
+#         ur_bundle = ur.build_bundle(obj=user.profile, request=request)
+#         if api_key == api_key_object.key:
+#             return self.create_response(request, {
+#                     'is_logged_in': True,
+#                     'message': 'The user is logged in',
+#                     'user_profile': json.loads(ur.serialize(None, ur.full_dehydrate(ur_bundle), 'application/json'))
+#                     })
+#         else:
+#             return self.create_response(request, {
+#                     'is_logged_in': False,
+#                     'message': 'The user is not logged in',
+#                     })
             
-        #find the api key object of the user
-        try:
-            api_key_object = ApiKey.objects.get(user=user)
-        except:
-            return self.create_response(request, {
-                    'is_logged_in': False,
-                    'message': 'The user is not logged in',
-                    })
-            
-        #verify that the api keys are equal in the session and in the object
-        ur = UserProfileResource()
-        ur_bundle = ur.build_bundle(obj=user.profile, request=request)
-        if api_key == api_key_object.key:
-            return self.create_response(request, {
-                    'is_logged_in': True,
-                    'message': 'The user is logged in',
-                    'user_profile': json.loads(ur.serialize(None, ur.full_dehydrate(ur_bundle), 'application/json'))
-                    })
-        else:
-            return self.create_response(request, {
-                    'is_logged_in': False,
-                    'message': 'The user is not logged in',
-                    })
-            
-    def logout(self, request=None, **kwargs):
-        '''
-        logs the user out
-        '''
-        
-        #delete the session keys
-        try:
-            del request.session['api_key']
-            del request.session['username']
-        except:
-            pass
-        
-        return self.create_response(request, {
-                    'is_logged_in': False,
-                    'message': 'The user is not logged in',
-                    })
+#     def logout(self, request=None, **kwargs):
+#         '''
+#         logs the user out
+#         '''
+#         
+#         #delete the session keys
+#         try:
+#             del request.session['api_key']
+#             del request.session['username']
+#         except:
+#             pass
+#         
+#         return self.create_response(request, {
+#                     'is_logged_in': False,
+#                     'message': 'The user is not logged in',
+#                     })
         
     def fb_login(self, request=None, **kwargs):
         '''
@@ -656,12 +712,14 @@ class UtilitiesResource(NerdeezResource):
         api_key.save()
         
         #store the keys in the session
-        request.session['api_key'] = api_key.key
-        request.session['username'] = user.username
+#         request.session['api_key'] = api_key.key
+#         request.session['username'] = user.username
         
         return self.create_response(request, {
                     'is_logged_in': True,
                     'message': 'The user is logged in',
+                    'api_key': api_key.key,
+                    'username': user.username
                     })
         
     def twitter_login(self, request=None, **kwargs):
@@ -730,6 +788,8 @@ class UtilitiesResource(NerdeezResource):
         return self.create_response(request, {
                     'is_logged_in': True,
                     'message': 'The user is logged in',
+                    'username': user.username,
+                    'api_key': api_key.key
                     })
         
     def change_password(self, request=None, **kwargs):
