@@ -612,64 +612,6 @@ class UtilitiesResource(NerdeezResource):
                     'message': 'Email verification failed',
                     }, HttpBadRequest )
             
-#     def is_login(self, request=None, **kwargs):
-#         '''
-#         check to see if the user is logged in
-#         '''
-#         
-#         #get the api key and the username from the session
-#         api_key = request.session.get('api_key', '')
-#         username = request.session.get('username', '')
-#         
-#         #find the user with that username
-#         try:
-#             user = User.objects.get(username=username)
-#         except:
-#             return self.create_response(request, {
-#                     'is_logged_in': False,
-#                     'message': 'The user is not logged in',
-#                     })
-#             
-#         #find the api key object of the user
-#         try:
-#             api_key_object = ApiKey.objects.get(user=user)
-#         except:
-#             return self.create_response(request, {
-#                     'is_logged_in': False,
-#                     'message': 'The user is not logged in',
-#                     })
-#             
-#         #verify that the api keys are equal in the session and in the object
-#         ur = UserProfileResource()
-#         ur_bundle = ur.build_bundle(obj=user.profile, request=request)
-#         if api_key == api_key_object.key:
-#             return self.create_response(request, {
-#                     'is_logged_in': True,
-#                     'message': 'The user is logged in',
-#                     'user_profile': json.loads(ur.serialize(None, ur.full_dehydrate(ur_bundle), 'application/json'))
-#                     })
-#         else:
-#             return self.create_response(request, {
-#                     'is_logged_in': False,
-#                     'message': 'The user is not logged in',
-#                     })
-            
-#     def logout(self, request=None, **kwargs):
-#         '''
-#         logs the user out
-#         '''
-#         
-#         #delete the session keys
-#         try:
-#             del request.session['api_key']
-#             del request.session['username']
-#         except:
-#             pass
-#         
-#         return self.create_response(request, {
-#                     'is_logged_in': False,
-#                     'message': 'The user is not logged in',
-#                     })
         
     def fb_login(self, request=None, **kwargs):
         '''
@@ -711,15 +653,14 @@ class UtilitiesResource(NerdeezResource):
         api_key, created = ApiKey.objects.get_or_create(user=user)
         api_key.save()
         
-        #store the keys in the session
-#         request.session['api_key'] = api_key.key
-#         request.session['username'] = user.username
-        
+        ur = UserProfileResource()
+        ur_bundle = ur.build_bundle(obj=user.profile, request=request)
         return self.create_response(request, {
                     'is_logged_in': True,
                     'message': 'The user is logged in',
                     'api_key': api_key.key,
-                    'username': user.username
+                    'username': user.username,
+                    'user_profile': json.loads(ur.serialize(None, ur.full_dehydrate(ur_bundle), 'application/json'))
                     })
         
     def twitter_login(self, request=None, **kwargs):
@@ -785,11 +726,14 @@ class UtilitiesResource(NerdeezResource):
         request.session['api_key'] = api_key.key
         request.session['username'] = user.username
         
+        ur = UserProfileResource()
+        ur_bundle = ur.build_bundle(obj=user.profile, request=request)
         return self.create_response(request, {
                     'is_logged_in': True,
                     'message': 'The user is logged in',
                     'username': user.username,
-                    'api_key': api_key.key
+                    'api_key': api_key.key,
+                    'user_profile': json.loads(ur.serialize(None, ur.full_dehydrate(ur_bundle), 'application/json'))
                     })
         
     def change_password(self, request=None, **kwargs):
