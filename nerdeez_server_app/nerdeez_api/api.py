@@ -337,7 +337,7 @@ class HwResource(NerdeezResource):
         queryset = Hw.objects.all()
         allowed_methods = ['post', 'get']
         authentication = NerdeezApiKeyAuthentication()
-        authorization = DjangoAuthorization()
+        authorization = NerdeezReadForFreeAuthorization()
         
         
 class FileResource(NerdeezResource):
@@ -347,7 +347,7 @@ class FileResource(NerdeezResource):
         queryset = File.objects.all()
         allowed_methods = ['post', 'get', 'put']
         authentication = NerdeezApiKeyAuthentication()
-        authorization = DjangoAuthorization()
+        authorization = NerdeezReadForFreeAuthorization()
             
         
         
