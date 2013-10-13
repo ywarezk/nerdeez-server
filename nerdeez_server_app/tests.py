@@ -118,7 +118,16 @@ class ApiTest(ResourceTestCase):
         self.assertHttpOK(resp)
         resp = self.api_client.get(uri='/api/v1/userprofile/2/?username=1234&api_key=12345678', format='json')
         self.assertHttpUnauthorized(resp)
-    
+        
+    def test_like_dislike(self):
+        '''
+        test that the like and dislike works
+        '''
+        resp = self.api_client.put(uri='/api/v1/schoolgroup/1/?username=1234&api_key=12345678', format='json', data={'like': 3000})
+        self.assertHttpAccepted(resp)
+        self.assertEqual(self.deserialize(resp)['like'], 1)
+
+            
         
         
         

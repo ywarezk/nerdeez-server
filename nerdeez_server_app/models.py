@@ -54,6 +54,8 @@ class NerdeezModel(models.Model):
     '''
     creation_date = models.DateTimeField(default=lambda: datetime.datetime.now().replace(microsecond=0))
     modified_data = models.DateTimeField(default=lambda: datetime.datetime.now().replace(microsecond=0), auto_now=True)
+    like = models.IntegerField(default=0)
+    dislike = models.IntegerField(default=0)
     
     class Meta:
         abstract = True

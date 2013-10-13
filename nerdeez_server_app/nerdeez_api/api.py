@@ -84,6 +84,18 @@ class NerdeezResource(ModelResource):
         ordering = ['title']
         excludes = ['search_index']
         
+    def obj_update(self, bundle, skip_errors=False, **kwargs):
+        '''
+        deal with likes and dislikes
+        '''
+        
+        if 'like' in bundle.data:
+            bundle.data['like'] = bundle.obj.like + 1
+        if 'dislike' in bundle.data:
+            bundle.data['dislike'] = bundle.obj.dislike + 1
+            
+        return super(NerdeezResource, self).obj_update(bundle, skip_errors=skip_errors, **kwargs)
+        
 #===============================================================================
 # end abstract resources
 #===============================================================================
@@ -260,7 +272,7 @@ class SchoolGroupResource(NerdeezResource):
     parent =  fields.ToOneField('self', 'parent', full=True, null=True)
     hws = fields.ToManyField('nerdeez_server_app.nerdeez_api.api.HwResource', 'hws', full=True, null=True)
     class Meta(NerdeezResource.Meta):
-        allowed_methods = ['get', 'post']
+        allowed_methods = ['get', 'post', 'put']
         queryset = SchoolGroup.objects.all()
         filtering = {
                      'school_type': ['exact'],
@@ -335,7 +347,7 @@ class HwResource(NerdeezResource):
     
     class Meta(NerdeezResource.Meta):
         queryset = Hw.objects.all()
-        allowed_methods = ['post', 'get']
+        allowed_methods = ['post', 'get', 'put']
         authentication = NerdeezApiKeyAuthentication()
         authorization = NerdeezReadForFreeAuthorization()
         
@@ -345,7 +357,7 @@ class FileResource(NerdeezResource):
     
     class Meta(NerdeezResource.Meta):
         queryset = File.objects.all()
-        allowed_methods = ['post', 'get']
+        allowed_methods = ['post', 'get', 'put']
         authentication = NerdeezApiKeyAuthentication()
         authorization = NerdeezReadForFreeAuthorization()
             
