@@ -345,7 +345,7 @@ class FileResource(NerdeezResource):
     
     class Meta(NerdeezResource.Meta):
         queryset = File.objects.all()
-        allowed_methods = ['post', 'get', 'put']
+        allowed_methods = ['post', 'get']
         authentication = NerdeezApiKeyAuthentication()
         authorization = NerdeezReadForFreeAuthorization()
             
