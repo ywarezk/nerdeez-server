@@ -18,6 +18,7 @@ from django.contrib.auth.models import User
 from decimal import Decimal
 import string
 import random
+from django.db.models.fields import CharField, IntegerField
 
 #===============================================================================
 # end imports
@@ -190,7 +191,6 @@ class File(NerdeezModel):
     
     class Meta:
         ordering = ['title']
-        unique_together = (("title", "hw"),)
     
           
 
@@ -207,4 +207,5 @@ User.profile = property(lambda u: UserProfile.objects.get_or_create(user=u)[0])
 #===============================================================================
 # end signals
 #===============================================================================
+
 
