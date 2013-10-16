@@ -19,6 +19,8 @@ from decimal import Decimal
 import string
 import random
 from django.db.models.fields import CharField, IntegerField
+from djorm_pgfulltext.models import SearchManager
+from djorm_pgfulltext.fields import VectorField
 
 #===============================================================================
 # end imports
@@ -121,6 +123,15 @@ class SchoolGroup(NerdeezModel):
     school_type = models.IntegerField(choices = SCHOOL_TYPES, default = DEFAULT_SCHOOL_TYPE, blank=False, null=False)
     grade = models.DecimalField(max_digits = 3, decimal_places = 1, default = Decimal("3.5"))
     
+    search_index = VectorField()
+
+    objects = SearchManager(
+        fields = ('title', 'description'),
+        config = 'pg_catalog.english', # this is default
+        search_field = 'search_index', # this is default
+        auto_update_search_field = True
+    )
+    
     @classmethod
     def search(cls, query):
         '''
@@ -129,11 +140,7 @@ class SchoolGroup(NerdeezModel):
         @return: {QuerySet} all the objects matching the search
         '''
         
-        return cls.objects.filter(
-            Q(title__icontains=query) | 
-            Q(description__icontains=query) | 
-            Q(parent__title__icontains=query) | 
-            Q(parent__description__icontains=query)).order_by('title').distinct()
+        return cls.objects.search(query).distinct()
         
     
 class Flatpage(NerdeezModel):
