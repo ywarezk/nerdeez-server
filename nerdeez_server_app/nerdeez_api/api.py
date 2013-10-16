@@ -270,10 +270,13 @@ class SchoolGroupResource(NerdeezResource):
     '''
     
     parent =  fields.ToOneField('self', 'parent', full=True, null=True)
-    hws = fields.ToManyField('nerdeez_server_app.nerdeez_api.api.HwResource', 'hws', full=True, null=True)
+    hws = fields.ToManyField('nerdeez_server_app.nerdeez_api.api.HwResource', 'hws', full=False, null=True)
     class Meta(NerdeezResource.Meta):
         allowed_methods = ['get', 'post', 'put']
-        queryset = SchoolGroup.objects.all()
+        queryset = SchoolGroup.objects.prefetch_related(
+                                                        'hws',
+                                                        'parent',
+                                                        ).all()
         filtering = {
                      'school_type': ['exact'],
                      'parent': ALL_WITH_RELATIONS,
@@ -343,10 +346,12 @@ class EnrollResource(NerdeezResource):
     
 class HwResource(NerdeezResource):
     school_group = fields.ToOneField(SchoolGroupResource, 'school_group')
-    files = fields.ToManyField('nerdeez_server_app.nerdeez_api.api.FileResource', 'files', full=True, null=True)
+    files = fields.ToManyField('nerdeez_server_app.nerdeez_api.api.FileResource', 'files', full=False, null=True)
     
     class Meta(NerdeezResource.Meta):
-        queryset = Hw.objects.all()
+        queryset = Hw.objects.prefetch_related(
+                                               'files'
+                                               ).all()
         allowed_methods = ['post', 'get', 'put']
         authentication = NerdeezApiKeyAuthentication()
         authorization = NerdeezReadForFreeAuthorization()
