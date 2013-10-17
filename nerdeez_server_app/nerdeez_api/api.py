@@ -301,7 +301,22 @@ class SchoolGroupResource(NerdeezResource):
             self.fields['hws'].full = False
         else:
             self.fields['hws'].full = True
-        return super(SchoolGroupResource, self).dispatch(request_type, request, **kwargs)       
+        return super(SchoolGroupResource, self).dispatch(request_type, request, **kwargs)
+    
+    def apply_sorting(self, obj_list, options=None):
+        options2 = options.copy()
+        if 'order_by' in options:
+            if options['order_by'] == 'users':
+                def compare_by_users(x, y):
+                    return Enroll.objects.filter(school_group=x).count() - Enroll.objects.filter(school_group=y).count()
+                obj_list = sorted(obj_list, cmp=compare_by_users)
+                del options2['order_by'] 
+            if options['order_by'] == 'files':
+                def compare_by_files(x, y):
+                    return File.objects.filter(hw__school_group=x).count() - File.objects.filter(hw__school_group=y).count()
+                obj_list = sorted(obj_list, cmp=compare_by_files)
+                del options2['order_by'] 
+        return super(SchoolGroupResource, self).apply_sorting(obj_list, options=options2)       
         
         
 class FlatpageResource(NerdeezResource):

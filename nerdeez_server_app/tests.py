@@ -126,6 +126,12 @@ class ApiTest(ResourceTestCase):
         resp = self.api_client.put(uri='/api/v1/schoolgroup/1/?username=1234&api_key=12345678', format='json', data={'like': 3000})
         self.assertHttpAccepted(resp)
         self.assertEqual(self.deserialize(resp)['like'], 1)
+        
+    def test_orderby_files_users(self):
+        resp = self.api_client.get(uri='/api/v1/schoolgroup/?order_by=files', format='json')
+        self.assertHttpOK(resp)
+        resp = self.api_client.get(uri='/api/v1/schoolgroup/?order_by=users', format='json')
+        self.assertHttpOK(resp)
 
             
         
