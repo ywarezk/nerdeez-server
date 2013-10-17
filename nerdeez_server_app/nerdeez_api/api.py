@@ -270,7 +270,7 @@ class SchoolGroupResource(NerdeezResource):
     '''
     
     parent =  fields.ToOneField('self', 'parent', full=True, null=True)
-    hws = fields.ToManyField('nerdeez_server_app.nerdeez_api.api.HwResource', 'hws', full=False, null=True)
+    hws = fields.ToManyField('nerdeez_server_app.nerdeez_api.api.HwResource', 'hws', full=True, null=True)
     class Meta(NerdeezResource.Meta):
         allowed_methods = ['get', 'post', 'put']
         queryset = SchoolGroup.objects.prefetch_related(
@@ -294,7 +294,14 @@ class SchoolGroupResource(NerdeezResource):
         if request.GET.get('search') != None:
             return self.Meta.object_class.search(request.GET.get('search'))
         else:
-            return super(SchoolGroupResource, self).get_object_list(request)       
+            return super(SchoolGroupResource, self).get_object_list(request)
+        
+    def dispatch(self, request_type, request, **kwargs):
+        if request.GET.get('page', '') == 'search':
+            self.fields['hws'].full = False
+        else:
+            self.fields['hws'].full = True
+        return super(SchoolGroupResource, self).dispatch(request_type, request, **kwargs)       
         
         
 class FlatpageResource(NerdeezResource):
@@ -346,7 +353,7 @@ class EnrollResource(NerdeezResource):
     
 class HwResource(NerdeezResource):
     school_group = fields.ToOneField(SchoolGroupResource, 'school_group')
-    files = fields.ToManyField('nerdeez_server_app.nerdeez_api.api.FileResource', 'files', full=False, null=True)
+    files = fields.ToManyField('nerdeez_server_app.nerdeez_api.api.FileResource', 'files', full=True, null=True)
     
     class Meta(NerdeezResource.Meta):
         queryset = Hw.objects.prefetch_related(
