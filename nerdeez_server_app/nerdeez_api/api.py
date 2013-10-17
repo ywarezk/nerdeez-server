@@ -362,6 +362,9 @@ class HwResource(NerdeezResource):
         allowed_methods = ['post', 'get', 'put']
         authentication = NerdeezApiKeyAuthentication()
         authorization = NerdeezReadForFreeAuthorization()
+        filtering = {
+                     'school_group': ALL_WITH_RELATIONS,
+                     }
         
         
 class FileResource(NerdeezResource):
