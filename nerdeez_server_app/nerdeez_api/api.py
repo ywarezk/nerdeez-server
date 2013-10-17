@@ -308,12 +308,12 @@ class SchoolGroupResource(NerdeezResource):
         if 'order_by' in options:
             if options['order_by'] == 'users':
                 def compare_by_users(x, y):
-                    return Enroll.objects.filter(school_group=x).count() - Enroll.objects.filter(school_group=y).count()
+                    return  Enroll.objects.filter(school_group=y).count() - Enroll.objects.filter(school_group=x).count()
                 obj_list = sorted(obj_list, cmp=compare_by_users)
                 del options2['order_by'] 
             if options['order_by'] == 'files':
                 def compare_by_files(x, y):
-                    return File.objects.filter(hw__school_group=x).count() - File.objects.filter(hw__school_group=y).count()
+                    return File.objects.filter(hw__school_group=y).count() - File.objects.filter(hw__school_group=x).count()
                 obj_list = sorted(obj_list, cmp=compare_by_files)
                 del options2['order_by'] 
         return super(SchoolGroupResource, self).apply_sorting(obj_list, options=options2)       
