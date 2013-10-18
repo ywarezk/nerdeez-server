@@ -402,6 +402,25 @@ class FileResource(NerdeezResource):
         allowed_methods = ['post', 'get', 'put']
         authentication = NerdeezApiKeyAuthentication()
         authorization = NerdeezReadForFreeAuthorization()
+        
+    def obj_update(self, bundle, skip_errors=False, **kwargs):
+        '''
+        check if the user flaged this file
+        '''
+        if 'flag' in bundle.data and bundle.data['flag'] and is_send_grid():
+            flag_message = bundle.data.get('flag_message', '')
+            #send mail to the admin
+            t = get_template('emails/flag_email.html')
+            html = t.render(Context({'file': bundle.obj, 'flag_message': flag_message}))
+            text_content = strip_tags(html)
+            msg = EmailMultiAlternatives(u'Nerdeez flag file', text_content, settings.FROM_EMAIL_ADDRESS, [os.environ['ADMIN_MAIL']])
+            msg.attach_alternative(html, "text/html")
+            try:
+                msg.send()
+            except SMTPSenderRefused, e:
+                pass
+            
+        return super(FileResource, self).obj_update(bundle, skip_errors=skip_errors, **kwargs)
             
         
         

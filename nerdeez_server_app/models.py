@@ -192,6 +192,8 @@ class File(NerdeezModel):
     file = models.CharField(max_length=500, default='', blank=True, null=True)    
     size = models.FloatField(default=0)
     hash = models.CharField(max_length=1000, blank=True, null=True)
+    flag = models.BooleanField(default=False)
+    flag_message = models.CharField(max_length=300, default='')
     
     class Meta:
         ordering = ['title']
