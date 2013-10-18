@@ -414,8 +414,16 @@ class FileResource(NerdeezResource):
         
     def obj_update(self, bundle, skip_errors=False, **kwargs):
         '''
+        only the like dislike is updatable
         check if the user flaged this file
         '''
+        #those keys are not editable
+        black_list = ['title', 'hw', 'file', 'size', 'hash']
+        for key in black_list:
+            if key in bundle.data:
+                del bundle.data[key]
+                
+        #send admin mail for any flag
         if 'flag' in bundle.data and bundle.data['flag'] and is_send_grid():
             flag_message = bundle.data.get('flag_message', '')
             #send mail to the admin
