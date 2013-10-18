@@ -328,7 +328,16 @@ class SchoolGroupResource(NerdeezResource):
                     return File.objects.filter(hw__school_group=y).count() - File.objects.filter(hw__school_group=x).count()
                 obj_list = sorted(obj_list, cmp=compare_by_files)
                 del options2['order_by'] 
-        return super(SchoolGroupResource, self).apply_sorting(obj_list, options=options2)       
+        return super(SchoolGroupResource, self).apply_sorting(obj_list, options=options2)
+    
+    def dehydrate(self, bundle):
+        '''
+        add num_users and num_files
+        '''
+        bundle.data['num_users'] = Enroll.objects.filter(school_group=bundle.obj).count()
+        bundle.data['num_files'] = File.objects.filter(hw__school_group=bundle.obj).count()
+        return super(SchoolGroupResource, self).dehydrate(bundle)
+           
         
         
 class FlatpageResource(NerdeezResource):
