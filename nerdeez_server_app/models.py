@@ -121,7 +121,6 @@ class SchoolGroup(NerdeezModel):
     description = models.CharField(max_length=250, blank=True, null=False, default="")
     parent = models.ForeignKey('self', blank=True, null=True, default=None, related_name='university')
     school_type = models.IntegerField(choices = SCHOOL_TYPES, default = DEFAULT_SCHOOL_TYPE, blank=False, null=False)
-    grade = models.DecimalField(max_digits = 3, decimal_places = 1, default = Decimal("3.5"))
     
     search_index = VectorField()
 
@@ -182,7 +181,6 @@ class Enroll(NerdeezModel):
 class Hw(NerdeezModel):
     title = models.CharField(max_length=250, blank=False, null=False)
     description = models.CharField(max_length=250, blank=True, null=False, default="")
-    grade = models.DecimalField(max_digits = 3, decimal_places = 1, default = Decimal("3.5"))
     school_group = models.ForeignKey(SchoolGroup, related_name='hws')
     
     class Meta:
@@ -190,7 +188,6 @@ class Hw(NerdeezModel):
         
 class File(NerdeezModel):
     title = models.CharField(max_length=250, blank=False, null=False)
-    grade = models.DecimalField(max_digits = 3, decimal_places = 1, default = Decimal("3.5"))
     hw = models.ForeignKey(Hw, related_name='files', default=None, blank=True, null=True)
     file = models.CharField(max_length=500, default='', blank=True, null=True)    
     size = models.FloatField(default=0)

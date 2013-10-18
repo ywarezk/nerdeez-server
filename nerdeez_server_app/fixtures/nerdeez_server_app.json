@@ -6,7 +6,6 @@
         "description": "IIT - Israel's Institute of Technology", 
         "parent": null, 
         "title": "Technion", 
-        "grade": "3.5", 
         "creation_date": "2013-09-25T05:24:16Z", 
         "school_type": 3, 
         "modified_data": "2013-09-25T05:24:48.404Z"
@@ -19,7 +18,6 @@
         "description": "Technion's Computer Science faculty", 
         "parent": 1, 
         "title": "Computer Science", 
-        "grade": "3.5", 
         "creation_date": "2013-09-25T05:25:35Z", 
         "school_type": 2, 
         "modified_data": "2013-09-25T05:26:08.557Z"
@@ -32,7 +30,6 @@
         "description": "Matam course in Computer Science faculty in Technion University", 
         "parent": 2, 
         "title": "234122", 
-        "grade": "3.5", 
         "creation_date": "2013-09-25T05:26:38Z", 
         "school_type": 1, 
         "modified_data": "2013-09-25T05:28:11.685Z"
@@ -45,7 +42,6 @@
         "description": "Atam course in Technion", 
         "parent": 2, 
         "title": "234118", 
-        "grade": "3.5", 
         "creation_date": "2013-09-25T05:40:38Z", 
         "school_type": 1, 
         "modified_data": "2013-09-25T05:41:08.366Z"

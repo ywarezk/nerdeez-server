@@ -50,6 +50,7 @@ from tastypie.constants import ALL_WITH_RELATIONS
 from django.core.urlresolvers import resolve, get_script_prefix
 import nerdeez_server_app
 from tastypie.exceptions import Unauthorized
+from math import floor
 
 #===============================================================================
 # end imports
@@ -95,6 +96,17 @@ class NerdeezResource(ModelResource):
             bundle.data['dislike'] = bundle.obj.dislike + 1
             
         return super(NerdeezResource, self).obj_update(bundle, skip_errors=skip_errors, **kwargs)
+    
+    def dehydrate(self, bundle):
+        '''
+        will calculate the grade
+        (floor(like/(like + dislike) * 10))/2
+        '''
+        if (bundle.obj.like + bundle.obj.dislike) <= 0:
+            bundle.data['grade'] = 3.5
+        else:
+            bundle.data['grade'] = (floor((bundle.obj.like/(bundle.obj.like + bundle.obj.dislike)) * 10))/2
+        return super(NerdeezResource, self).dehydrate(bundle)
         
 #===============================================================================
 # end abstract resources
