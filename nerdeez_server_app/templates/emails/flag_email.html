@@ -6,12 +6,14 @@
 <p style="text-align: center;">
 	the following file has been flagged:
 </p>
+{% for name, value in file.get_fields %}
 <p style="text-align: center;">
-ID: {{file_id}}
-</p>
-<p style="text-align: center;">
-LINK: {{file_title}}
-</p>
+  {% if value %}
+    {{ name }} => {{ value }}
+  {% endif %}
+ </p>
+{% endfor %}
+
 <p style="text-align: center;">
 MESSAGE: {{flag_message}}
 </p>

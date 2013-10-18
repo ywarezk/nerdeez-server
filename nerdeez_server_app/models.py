@@ -197,6 +197,9 @@ class File(NerdeezModel):
     
     class Meta:
         ordering = ['title']
+        
+    def get_fields(self):
+        return [(field.name, field.value_to_string(self)) for field in File._meta.fields]
     
           
 
