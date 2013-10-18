@@ -185,7 +185,7 @@ def get_pk_from_uri(uri):
 class NerdeezApiKeyAuthentication(ApiKeyAuthentication):
     def extract_credentials(self, request):
         username, api_key = super(NerdeezApiKeyAuthentication, self).extract_credentials(request)
-        if username == None and api_key == None and request.method == 'POST':
+        if username == None and api_key == None and (request.method == 'POST' or request.method == 'PUT'):
             post = simplejson.loads(request.body)
             username = post.get('username')
             api_key = post.get('api_key')
