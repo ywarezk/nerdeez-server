@@ -404,7 +404,7 @@ class HwResource(NerdeezResource):
         
         
 class FileResource(NerdeezResource):
-    hw = fields.ToOneField(HwResource, 'hw', null=True, full=True)
+    hw = fields.ToOneField(HwResource, 'hw', null=True)
     
     class Meta(NerdeezResource.Meta):
         queryset = File.objects.all()
