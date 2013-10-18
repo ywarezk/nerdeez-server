@@ -420,7 +420,7 @@ class FileResource(NerdeezResource):
             flag_message = bundle.data.get('flag_message', '')
             #send mail to the admin
             t = get_template('emails/flag_email.html')
-            html = t.render(Context({'file': File.objects.get(kwargs['pk']), 'flag_message': flag_message}))
+            html = t.render(Context({'file': File.objects.get(id=kwargs['pk']), 'flag_message': flag_message}))
             text_content = strip_tags(html)
             msg = EmailMultiAlternatives(u'Nerdeez flag file', text_content, settings.FROM_EMAIL_ADDRESS, [os.environ['ADMIN_MAIL']])
             msg.attach_alternative(html, "text/html")
