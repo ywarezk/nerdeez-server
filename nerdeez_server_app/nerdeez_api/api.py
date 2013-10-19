@@ -407,8 +407,6 @@ class HwResource(NerdeezResource):
         
 class FileResource(NerdeezResource):
     hw = fields.ToOneField(HwResource, 'hw', null=True)
-#     like = fields.IntegerField('like')
-#     dislike = fields.IntegerField('dislike')
     class Meta(NerdeezResource.Meta):
         queryset = File.objects.all()
         allowed_methods = ['post', 'get', 'put']
