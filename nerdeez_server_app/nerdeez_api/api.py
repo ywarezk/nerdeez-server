@@ -85,17 +85,6 @@ class NerdeezResource(ModelResource):
         ordering = ['title']
         excludes = ['search_index']
         
-    def obj_update(self, bundle, skip_errors=False, **kwargs):
-        '''
-        deal with likes and dislikes
-        '''
-        
-        if 'like' in bundle.data:
-            bundle.data['like'] = bundle.obj.like + 1
-        if 'dislike' in bundle.data:
-            bundle.data['dislike'] = bundle.obj.dislike + 1
-            
-        return super(NerdeezResource, self).obj_update(bundle, skip_errors=skip_errors, **kwargs)
     
     def dehydrate(self, bundle):
         '''
@@ -107,6 +96,17 @@ class NerdeezResource(ModelResource):
         else:
             bundle.data['grade'] = (floor((bundle.obj.like/(bundle.obj.like + bundle.obj.dislike)) * 10))/2
         return super(NerdeezResource, self).dehydrate(bundle)
+    
+    def hydrate_like(self, bundle):
+        if bundle.data['like'] > bundle.obj.like:
+            bundle.data['like'] = bundle.obj.like + 1
+        return bundle
+    
+    def hydrate_dislike(self, bundle):
+        if bundle.data['dislike'] > bundle.obj.dislike:
+            bundle.data['dislike'] = bundle.obj.dislike + 1
+        return bundle
+    
         
 #===============================================================================
 # end abstract resources
@@ -337,6 +337,8 @@ class SchoolGroupResource(NerdeezResource):
         bundle.data['num_users'] = Enroll.objects.filter(school_group=bundle.obj).count()
         bundle.data['num_files'] = File.objects.filter(hw__school_group=bundle.obj).count()
         return super(SchoolGroupResource, self).dehydrate(bundle)
+    
+    
            
         
         
@@ -405,14 +407,15 @@ class HwResource(NerdeezResource):
         
 class FileResource(NerdeezResource):
     hw = fields.ToOneField(HwResource, 'hw', null=True)
-    
+#     like = fields.IntegerField('like')
+#     dislike = fields.IntegerField('dislike')
     class Meta(NerdeezResource.Meta):
         queryset = File.objects.all()
         allowed_methods = ['post', 'get', 'put']
         authentication = NerdeezApiKeyAuthentication()
         authorization = NerdeezReadForFreeAuthorization()
         
-    def obj_update(self, bundle, skip_errors=False, **kwargs):
+    def obj_update(self, bundle, request=None, **kwargs):
         '''
         only the like dislike is updatable
         check if the user flaged this file
@@ -437,7 +440,7 @@ class FileResource(NerdeezResource):
             except SMTPSenderRefused, e:
                 pass
             
-        return super(FileResource, self).obj_update(bundle, skip_errors=skip_errors, **kwargs)
+        return super(FileResource, self).obj_update(bundle, request, **kwargs)
             
         
         
