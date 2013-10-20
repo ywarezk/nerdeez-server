@@ -121,6 +121,7 @@ class SchoolGroup(NerdeezModel):
     description = models.CharField(max_length=250, blank=True, null=False, default="")
     parent = models.ForeignKey('self', blank=True, null=True, default=None, related_name='university')
     school_type = models.IntegerField(choices = SCHOOL_TYPES, default = DEFAULT_SCHOOL_TYPE, blank=False, null=False)
+    image = models.CharField(max_length=500, default=None, blank=True, null=True)
     
     search_index = VectorField()
 

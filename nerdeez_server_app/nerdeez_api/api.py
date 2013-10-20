@@ -98,12 +98,12 @@ class NerdeezResource(ModelResource):
         return super(NerdeezResource, self).dehydrate(bundle)
     
     def hydrate_like(self, bundle):
-        if bundle.data['like'] > bundle.obj.like:
+        if 'like' in bundle.data and bundle.data['like'] > bundle.obj.like:
             bundle.data['like'] = bundle.obj.like + 1
         return bundle
     
     def hydrate_dislike(self, bundle):
-        if bundle.data['dislike'] > bundle.obj.dislike:
+        if 'dislike' in bundle.data and bundle.data['dislike'] > bundle.obj.dislike:
             bundle.data['dislike'] = bundle.obj.dislike + 1
         return bundle
     
@@ -283,6 +283,7 @@ class SchoolGroupResource(NerdeezResource):
     
     parent =  fields.ToOneField('self', 'parent', full=True, null=True)
     hws = fields.ToManyField('nerdeez_server_app.nerdeez_api.api.HwResource', 'hws', full=True, null=True)
+    image = fields.CharField('image', readonly=True)
     class Meta(NerdeezResource.Meta):
         allowed_methods = ['get', 'post', 'put']
         queryset = SchoolGroup.objects.prefetch_related(
