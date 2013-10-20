@@ -283,7 +283,7 @@ class SchoolGroupResource(NerdeezResource):
     
     parent =  fields.ToOneField('self', 'parent', full=True, null=True)
     hws = fields.ToManyField('nerdeez_server_app.nerdeez_api.api.HwResource', 'hws', full=True, null=True)
-    image = fields.CharField('image', readonly=True)
+    image = fields.CharField('image', readonly=True, default=None)
     class Meta(NerdeezResource.Meta):
         allowed_methods = ['get', 'post', 'put']
         queryset = SchoolGroup.objects.prefetch_related(
