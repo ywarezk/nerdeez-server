@@ -293,7 +293,8 @@ class SchoolGroupResource(NerdeezResource):
         filtering = {
                      'school_type': ['exact'],
                      'parent': ALL_WITH_RELATIONS,
-                     'id': ['exact']
+                     'id': ['exact'],
+                     'image': ALL_WITH_RELATIONS,
                      }
         ordering = ['grade', 'title']
         authentication = NerdeezReadForFreeAuthentication()
