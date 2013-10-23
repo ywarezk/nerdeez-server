@@ -148,7 +148,7 @@ class Flatpage(models.Model):
     the flatpage table
     '''
     title = models.CharField(max_length=250, blank=False, null=False, unique=True)
-    html = models.TextField(blank=True, null=True, db_index=False)
+    html = models.TextField(blank=True, null=True)
     
     def __unicode__(self):
         return self.title
