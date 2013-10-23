@@ -143,12 +143,15 @@ class SchoolGroup(NerdeezModel):
         return cls.objects.search(query).distinct()
         
     
-class Flatpage(NerdeezModel):
+class Flatpage(models.Model):
     '''
     the flatpage table
     '''
     title = models.CharField(max_length=250, blank=False, null=False, unique=True)
     html = models.TextField(blank=True, null=True, db_index=False)
+    
+    def __unicode__(self):
+        return self.title
 
 
 class Enroll(NerdeezModel):
