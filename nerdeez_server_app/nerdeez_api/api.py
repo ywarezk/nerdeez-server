@@ -336,8 +336,18 @@ class SchoolGroupResource(NerdeezResource):
         '''
         add num_users and num_files
         '''
-        bundle.data['num_users'] = Enroll.objects.filter(school_group=bundle.obj).count()
-        bundle.data['num_files'] = File.objects.filter(hw__school_group=bundle.obj).count()
+        
+        #find all the childrens
+        result_list = loop_list = [bundle.obj.id]
+        while True:
+            school_groups = SchoolGroup.objects.filter(parent__id__in=loop_list)
+            loop_list = [obj.id for obj in school_groups]
+            result_list.extend(loop_list)
+            if len(loop_list) == 0:
+                break
+        
+        bundle.data['num_users'] = Enroll.objects.filter(school_group__id__in=result_list).count()
+        bundle.data['num_files'] = File.objects.filter(hw__school_group__id__in=result_list).count()
         return super(SchoolGroupResource, self).dehydrate(bundle)
     
     

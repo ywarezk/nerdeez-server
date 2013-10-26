@@ -21,6 +21,8 @@ import random
 from django.db.models.fields import CharField, IntegerField
 from djorm_pgfulltext.models import SearchManager
 from djorm_pgfulltext.fields import VectorField
+from django.contrib.contenttypes.models import ContentType
+from django.contrib.contenttypes import generic
 
 #===============================================================================
 # end imports
@@ -143,7 +145,7 @@ class SchoolGroup(NerdeezModel):
         return cls.objects.search(query).distinct()
         
     
-class Flatpage(models.Model):
+class Flatpage(NerdeezModel):
     '''
     the flatpage table
     '''
@@ -204,6 +206,12 @@ class File(NerdeezModel):
         
     def get_fields(self):
         return [(field.name, field.value_to_string(self)) for field in File._meta.fields]
+    
+class LikedItem(models.Model):
+    content_type = models.ForeignKey(ContentType)
+    object_id = models.PositiveIntegerField()
+    content_object = generic.GenericForeignKey('content_type', 'object_id')
+
     
           
 
