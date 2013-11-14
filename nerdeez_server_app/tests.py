@@ -132,6 +132,10 @@ class ApiTest(ResourceTestCase):
         self.assertHttpOK(resp)
         resp = self.api_client.get(uri='/api/v1/schoolgroup/?order_by=users', format='json')
         self.assertHttpOK(resp)
+        
+    def test_reputation(self):
+        resp = self.api_client.get(uri='/api/v1/userprofile/?username=1234&api_key=12345678', format='json', data={})
+        self.assertTrue('reputation' in self.deserialize(resp)['objects'][0])
 
             
         

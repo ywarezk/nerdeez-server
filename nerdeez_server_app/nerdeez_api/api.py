@@ -375,6 +375,10 @@ class UserProfileResource(NerdeezResource):
         authentication = NerdeezApiKeyAuthentication()
         authorization = NerdeezOnlyOwnerCanReadAuthorization()
         
+    def dehydrate(self, bundle):
+        bundle.data['reputation'] = bundle.obj.get_reputation()
+        return super(UserProfileResource, self).dehydrate(bundle)
+        
         
 class EnrollResource(NerdeezResource):
     user = fields.ToOneField(UserProfileResource, 'user')
@@ -404,7 +408,7 @@ class EnrollResource(NerdeezResource):
 class HwResource(NerdeezResource):
     school_group = fields.ToOneField(SchoolGroupResource, 'school_group')
     files = fields.ToManyField('nerdeez_server_app.nerdeez_api.api.FileResource', 'files', full=True, null=True)
-    
+    user_profile = fields.ToOneField(UserProfileResource, 'user_profile')
     class Meta(NerdeezResource.Meta):
         queryset = Hw.objects.prefetch_related(
                                                'files'
@@ -419,6 +423,7 @@ class HwResource(NerdeezResource):
         
 class FileResource(NerdeezResource):
     hw = fields.ToOneField(HwResource, 'hw', null=True)
+    user_profile = fields.ToOneField(UserProfileResource, 'user_profile')
     class Meta(NerdeezResource.Meta):
         queryset = File.objects.all()
         allowed_methods = ['post', 'get', 'put']

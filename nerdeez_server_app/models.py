@@ -42,6 +42,10 @@ DEFAULT_SCHOOL_TYPE = 1
 
 NUM_ENROLLED_COURSES = 10
 
+REPUTATION_OPEN_SCHOOLGROUP = 10
+REPUTATION_OPEN_HW = 100
+REPUTATION_OPEN_FILE = 1000
+
 #===============================================================================
 # end constants
 #===============================================================================
@@ -85,6 +89,8 @@ class UserProfile(NerdeezModel):
     twitter_oauth_token = models.CharField(max_length=255, blank = True, null = True, default="")
     twitter_oauth_token_secret = models.CharField(max_length=255, blank = True, null = True, default="")
     school_groups = models.ManyToManyField('SchoolGroup', related_name = "users", through = 'Enroll')
+    first_name = models.CharField(max_length=100, blank = True, null = True, default=None)
+    last_name = models.CharField(max_length=100, blank = True, null = True, default=None)
     
     def __unicode__(self):
         '''
@@ -95,6 +101,27 @@ class UserProfile(NerdeezModel):
     
     def owner(self):
         return self.user
+    
+    def get_reputation(self):
+        '''
+        Will calculate the user reputation based on history
+        @return: Integer positive number of the reputation
+        '''
+        result = 0
+        
+        #how many school groups did the user opened
+        amount_schoolgroups = SchoolGroup.objects.filter(user_profile=self).count()
+        result = result + (amount_schoolgroups * REPUTATION_OPEN_SCHOOLGROUP)
+        
+        #how many H.W did the user create
+        amount_hw = Hw.objects.filter(user_profile=self).count()
+        result = result + (amount_hw * REPUTATION_OPEN_HW)
+        
+        #how many Files did the user upload
+        amount_files = File.objects.filter(user_profile=self).count()
+        result = result + (amount_files * REPUTATION_OPEN_FILE)
+        
+        return result
     
 def createHash():
     '''
@@ -124,6 +151,7 @@ class SchoolGroup(NerdeezModel):
     parent = models.ForeignKey('self', blank=True, null=True, default=None, related_name='university')
     school_type = models.IntegerField(choices = SCHOOL_TYPES, default = DEFAULT_SCHOOL_TYPE, blank=False, null=False)
     image = models.CharField(max_length=500, default=None, blank=True, null=True)
+    user_profile = models.ForeignKey(UserProfile, default=None, blank=True, null=True)
     
     search_index = VectorField()
 
@@ -188,6 +216,7 @@ class Hw(NerdeezModel):
     title = models.CharField(max_length=250, blank=False, null=False)
     description = models.CharField(max_length=250, blank=True, null=False, default="")
     school_group = models.ForeignKey(SchoolGroup, related_name='hws')
+    user_profile = models.ForeignKey(UserProfile, default=None, blank=True, null=True)
     
     class Meta:
         ordering = ['title']
@@ -200,6 +229,7 @@ class File(NerdeezModel):
     hash = models.CharField(max_length=1000, blank=True, null=True)
     flag = models.BooleanField(default=False)
     flag_message = models.CharField(max_length=300, default='')
+    user_profile = models.ForeignKey(UserProfile, default=None, blank=True, null=True)
     
     class Meta:
         ordering = ['title']
