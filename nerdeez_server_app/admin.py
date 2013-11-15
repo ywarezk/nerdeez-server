@@ -12,6 +12,7 @@ Created on Jun 20, 2013
 #===============================================================================
 from django.contrib import admin
 from nerdeez_server_app.models import *
+from django.utils.html import format_html
 
 #===============================================================================
 # end imports
@@ -38,7 +39,14 @@ class HwAdmin(admin.ModelAdmin):
     pass
 
 class FileAdmin(admin.ModelAdmin):
-    pass
+    list_display = ('id', 'title', 'hw', 'file', 'size', 'flag', 'flag_message', 'download')
+    list_editable = ('title','hw',)
+    list_filter = ('hw__id',)
+    fields = ('title', 'hw')
+    
+    def download(self, file):
+        return format_html('<a href="{0}">Download</a>', file.file)
+    download.allow_tags = True
 
 
 #===============================================================================
