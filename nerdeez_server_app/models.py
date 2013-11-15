@@ -192,6 +192,9 @@ class Hw(NerdeezModel):
     class Meta:
         ordering = ['title']
         
+    def __unicode__(self):
+        return str(self.id)
+        
 class File(NerdeezModel):
     title = models.CharField(max_length=250, blank=False, null=False)
     hw = models.ForeignKey(Hw, related_name='files', default=None, blank=True, null=True)
