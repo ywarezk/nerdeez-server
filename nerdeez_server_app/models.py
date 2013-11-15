@@ -91,6 +91,7 @@ class UserProfile(NerdeezModel):
     school_groups = models.ManyToManyField('SchoolGroup', related_name = "users", through = 'Enroll')
     first_name = models.CharField(max_length=100, blank = True, null = True, default=None)
     last_name = models.CharField(max_length=100, blank = True, null = True, default=None)
+    image = models.ImageField(upload_to='img/userprofile', default=None, blank=True, null=True)
     
     def __unicode__(self):
         '''
@@ -238,6 +239,12 @@ class File(NerdeezModel):
         return [(field.name, field.value_to_string(self)) for field in File._meta.fields]
     
 class LikedItem(models.Model):
+    content_type = models.ForeignKey(ContentType)
+    object_id = models.PositiveIntegerField()
+    content_object = generic.GenericForeignKey('content_type', 'object_id')
+    
+class Comment(NerdeezModel):
+    message = models.CharField(max_length=300, default=None, blank=True, null=True)
     content_type = models.ForeignKey(ContentType)
     object_id = models.PositiveIntegerField()
     content_object = generic.GenericForeignKey('content_type', 'object_id')

@@ -246,3 +246,5 @@ if DEBUG and os.environ.get('IS_DEBUG_TOOLBAR', 'FALSE') == 'TRUE':
     }
     
     INTERNAL_IPS = ('127.0.0.1',)
+
+NERDEEZ_SEO_SERVER_URL = 'http://nerdeez.com/'
