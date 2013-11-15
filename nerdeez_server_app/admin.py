@@ -41,6 +41,7 @@ class HwAdmin(admin.ModelAdmin):
 class FileAdmin(admin.ModelAdmin):
     list_display = ('id', 'title', 'hw', 'file', 'size', 'flag', 'flag_message', 'download')
     list_editable = ('title',)
+    list_filter = ('hw__id',)
     
     def download(self, file):
         return format_html('<a href="{0}">Download</a>', file.file)
