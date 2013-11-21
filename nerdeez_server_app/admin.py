@@ -30,7 +30,7 @@ class FlatpageAdmin(admin.ModelAdmin):
     pass
 
 class UserProfileAdmin(admin.ModelAdmin):
-    pass
+    search_fields = ['user__email']
 
 class EnrollAdmin(admin.ModelAdmin):
     pass
