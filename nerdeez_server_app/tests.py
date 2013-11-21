@@ -132,6 +132,7 @@ class ApiTest(ResourceTestCase):
         self.assertHttpOK(resp)
         resp = self.api_client.get(uri='/api/v1/schoolgroup/?order_by=users', format='json')
         self.assertHttpOK(resp)
+        
 
             
         
