@@ -192,6 +192,18 @@
     }
 },
 {
+    "pk": 4, 
+    "model": "nerdeez_server_app.userprofile", 
+    "fields": {
+        "email_hash": "", 
+        "modified_data": "2013-09-26T06:37:37.596Z", 
+        "creation_date": "2013-09-26T06:37:37Z", 
+        "twitter_oauth_token": "571540045-KQjgPk2Xat5XoHyos8JEGutJXCXbB9ym1neNVByb", 
+        "user": 6, 
+        "twitter_oauth_token_secret": "IbJVHDpM9nWseFANQdMrUpnVci93ersHAr6u0"
+    }
+},
+{
     "pk": 1, 
     "model": "nerdeez_server_app.enroll", 
     "fields": {
