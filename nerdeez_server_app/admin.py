@@ -41,7 +41,7 @@ class HwAdmin(admin.ModelAdmin):
 class FileAdmin(admin.ModelAdmin):
     list_display = ('id', 'title', 'hw', 'file', 'size', 'flag', 'flag_message', 'download')
     list_editable = ('title','hw',)
-    list_filter = ('hw__id',)
+    list_filter = ('hw__id', 'creation_date')
     fields = ('title', 'hw')
     
     def download(self, file):
