@@ -244,9 +244,7 @@ class NerdeezReadForFreeAuthorization( DjangoAuthorization ):
     def delete_detail(self, object_list, bundle):
         return self.delete_detail(object_list, bundle)
     
-        
     
-        
 class NerdeezOnlyOwnerCanReadAuthorization( NerdeezReadForFreeAuthorization ):
     '''
     Authorizes every authenticated user to perform GET, for all others
